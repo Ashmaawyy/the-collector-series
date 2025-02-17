@@ -8,5 +8,5 @@ def scheduled_scraping():
 
 def start_scheduler():
     """Starts the Flask Scheduler"""
-    scheduler.add_job(id="ScheduledScraping", func=scheduled_scraping, trigger="interval", minutes=5)
+    scheduler.add_job(id="ScheduledScraping", func=scheduled_scraping, trigger="interval", minutes=1)
     scheduler.start()

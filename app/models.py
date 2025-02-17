@@ -12,6 +12,7 @@ def store_headlines(source, headlines):
         "scraped_at": datetime.utcnow()
     }
     news_collection.insert_one(data)
+    print("insert completed successfully ;)")
 
 def get_latest_headlines():
     """Fetches the latest headlines from MongoDB"""
