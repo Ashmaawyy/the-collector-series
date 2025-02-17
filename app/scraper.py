@@ -19,9 +19,9 @@ def scrape_website(url, tag):
 def scrape_all():
     """Scrapes multiple news sources"""
     sources = [
-        {"name": "BBC", "url": "https://www.bbc.com/news", "tag": "h3"},
-        {"name": "CNN", "url": "https://edition.cnn.com/world", "tag": "span"},
-        {"name": "Reuters", "url": "https://www.reuters.com/", "tag": "h3"}
+        {"name": "BBC", "url": "https://www.bbc.com/news", "tag": "h2"},
+        {"name": "CNN", "url": "https://edition.cnn.com/world", "tag": "h2"},
+        {"name": "Reuters", "url": "https://www.reuters.com/", "tag": "h2"}
     ]
     
     for source in sources:
@@ -29,4 +29,4 @@ def scrape_all():
         if headlines:
             store_headlines(source["name"], headlines)
 
-    print("Scraping completed!")
+    print("Scraping completed successfully ; )")
