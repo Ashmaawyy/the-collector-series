@@ -189,5 +189,5 @@ def scrape_all():
     
         if news:
             store_headlines(source["name"], news)
-            print(f"\n📰 {source['name']} News:\n", news)
-            #print("Scraping completed successfully ; )")
+            #print(f"\n📰 {source['name']} News:\n", news)
+            print("Scraping completed successfully ; )")
