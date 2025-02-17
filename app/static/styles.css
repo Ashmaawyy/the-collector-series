@@ -20,3 +20,29 @@ h1 {
     height: auto;
     margin-top: 10px;
 }
+
+form {
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    padding: 8px;
+    margin: 5px;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    margin: 2px;
+    text-decoration: none;
+    color: black;
+    background-color: #f1f1f1;
+}
+
+.pagination a:hover {
+    background-color: #ddd;
+}

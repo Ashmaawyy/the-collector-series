@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        h1 {text-align: center;}
-        li {text-align: center;}
-    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Aggregator</title>
@@ -12,7 +8,20 @@
 </head>
 <body>
     <h1>Latest News</h1>
-    
+
+    <!-- Search and Category Filter Form -->
+    <form method="GET" action="/">
+        <input type="text" name="q" placeholder="Search headlines..." value="{{ query }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            <option value="Politics" {% if category == "politics" %}selected{% endif %}>Politics</option>
+            <option value="Business" {% if category == "business" %}selected{% endif %}>Business</option>
+            <option value="Technology" {% if category == "technology" %}selected{% endif %}>Technology</option>
+            <option value="Sports" {% if category == "sports" %}selected{% endif %}>Sports</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
     {% for article in articles %}
         <div class="news-card">
             <h2>{{ article.headline }}</h2>
@@ -26,6 +35,17 @@
             <p><a href="{{ article.article_url }}" target="_blank">Read Full Article</a></p>
         </div>
     {% endfor %}
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('home', q=query, category=category, page=page-1) }}">Previous</a>
+        {% endif %}
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('home', q=query, category=category, page=page+1) }}">Next</a>
+        {% endif %}
+    </div>
 
 </body>
 </html>
