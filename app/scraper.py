@@ -21,7 +21,6 @@ def scrape_all():
     sources = [
     {"name": "BBC", "url": "https://www.bbc.com/news", "tag": "h2"},
     {"name": "CNN", "url": "https://edition.cnn.com/world", "tag": "h2"},
-    {"name": "Reuters", "url": "https://www.reuters.com/", "tag": "h2"},
     {"name": "New York Times", "url": "https://www.nytimes.com/", "tag": "h2"},
     {"name": "Al Jazeera", "url": "https://www.aljazeera.com/", "tag": "h2"},
     {"name": "Fox News", "url": "https://www.foxnews.com/", "tag": "h2"},
