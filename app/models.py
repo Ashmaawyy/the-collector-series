@@ -31,6 +31,15 @@ def store_headlines(source, articles):
         print(f"⚠ No valid articles to insert for {source}.")
 
 
-def get_latest_headlines():
-    """Fetches the latest headlines from MongoDB"""
-    return list(news_collection.find().sort("scraped_at", -1).limit(5))
+def get_latest_headlines(limit=5):
+    """
+    Fetches the latest news articles from MongoDB.
+    Returns a list of structured articles sorted by publication date.
+    """
+    latest_news = list(
+        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
+        .sort("publication_date", -1)  # Sort by latest publication date
+        .limit(limit)  # Limit results
+    )
+
+    return latest_news

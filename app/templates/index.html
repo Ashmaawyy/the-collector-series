@@ -12,13 +12,20 @@
 </head>
 <body>
     <h1>Latest News</h1>
-    {% for news in headlines %}
-        <h2>{{ news.source }}</h2>
-        <ul>
-            {% for headline in news.headlines %}
-                <li>{{ headline }}</li>
-            {% endfor %}
-        </ul>
+    
+    {% for article in articles %}
+        <div class="news-card">
+            <h2>{{ article.headline }}</h2>
+            <p><strong>Source:</strong> {{ article.name }} | <strong>Author:</strong> {{ article.author }}</p>
+            <p><strong>Published:</strong> {{ article.publication_date }}</p>
+            <p>{{ article.summary }}</p>
+            <p><strong>Category:</strong> {{ article.category }}</p>
+            {% if article.image_url != "N/A" %}
+                <img src="{{ article.image_url }}" alt="News Image" class="news-image">
+            {% endif %}
+            <p><a href="{{ article.article_url }}" target="_blank">Read Full Article</a></p>
+        </div>
     {% endfor %}
+
 </body>
 </html>

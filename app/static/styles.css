@@ -7,15 +7,16 @@ h1 {
     color: #333;
 }
 
-h2 {
-    color: #0056b3;
+.news-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 5px 0;
+.news-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
 }
