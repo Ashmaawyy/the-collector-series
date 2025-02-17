@@ -19,10 +19,17 @@ def scrape_website(url, tag):
 def scrape_all():
     """Scrapes multiple news sources"""
     sources = [
-        {"name": "BBC", "url": "https://www.bbc.com/news", "tag": "h2"},
-        {"name": "CNN", "url": "https://edition.cnn.com/world", "tag": "h2"},
-        {"name": "Reuters", "url": "https://www.reuters.com/", "tag": "h2"}
-    ]
+    {"name": "BBC", "url": "https://www.bbc.com/news", "tag": "h2"},
+    {"name": "CNN", "url": "https://edition.cnn.com/world", "tag": "h2"},
+    {"name": "Reuters", "url": "https://www.reuters.com/", "tag": "h2"},
+    {"name": "New York Times", "url": "https://www.nytimes.com/", "tag": "h2"},
+    {"name": "Al Jazeera", "url": "https://www.aljazeera.com/", "tag": "h2"},
+    {"name": "Fox News", "url": "https://www.foxnews.com/", "tag": "h2"},
+    {"name": "The Guardian", "url": "https://www.theguardian.com/international", "tag": "h2"},
+    {"name": "Bloomberg", "url": "https://www.bloomberg.com", "tag": "h2"},
+    {"name": "The Independent", "url": "https://www.independent.co.uk/", "tag": "h2"},
+    {"name": "Washington Post", "url": "https://www.washingtonpost.com/", "tag": "h2"}
+]
     
     for source in sources:
         headlines = scrape_website(source["url"], source["tag"])
