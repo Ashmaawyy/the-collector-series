@@ -37,3 +37,55 @@ updateNewsBtn.addEventListener("click", function () {
     });
 });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    let isRefreshing = false;
+
+    async function refreshNews() {
+        if (isRefreshing) return;
+        isRefreshing = true;
+
+        const response = await fetch(`/load_latest_news`);
+        const data = await response.json();
+
+        if (data.news.length > 0) {
+            const newsContainer = document.getElementById("news-container");
+            data.news.reverse().forEach(article => {
+                const newsCard = document.createElement("div");
+                newsCard.classList.add("news-card", "small-news");
+                newsCard.style.opacity = "0"; // Initial fade effect
+
+                newsCard.innerHTML = `
+                    <h2>${article.title}</h2>
+                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
+                    <p><strong>Published:</strong> ${article.publishedAt}</p>
+                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
+                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                `;
+
+                newsContainer.prepend(newsCard);
+                setTimeout(() => newsCard.style.opacity = "1", 200); // Fade in effect
+            });
+
+            isRefreshing = false;
+        }
+    }
+
+    let startY = 0;
+    window.addEventListener("touchstart", function (event) {
+        startY = event.touches[0].clientY;
+    });
+
+    window.addEventListener("touchend", function (event) {
+        let endY = event.changedTouches[0].clientY;
+        if (endY - startY > 50) {
+            refreshNews();
+        }
+    });
+
+    window.addEventListener("wheel", function (event) {
+        if (window.scrollY === 0 && event.deltaY < 0) {
+            refreshNews();
+        }
+    });
+});
