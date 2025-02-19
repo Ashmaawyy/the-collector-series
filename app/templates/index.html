@@ -4,66 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Aggregator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script defer src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
-    <div id="loading" class="loading-spinner"></div>
-
-    <div class="header">
+    <header>
         <h1>Latest News</h1>
-
-        <!-- Dark Mode Toggle Switch -->
         <div class="theme-switch">
-            <input type="checkbox" id="theme-toggle">
-            <label for="theme-toggle" class="toggle-label">
-                <span class="toggle-icon moon">🌙</span>
-                <span class="toggle-icon sun">☀</span>
+            <span class="icon sun">☀️</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
             </label>
-        </div>
-    </div>
-
-    <!-- Search and Category Filter Form -->
-    <form method="GET" action="/" class="filter-form">
-        <input type="text" name="q" placeholder="Search headlines..." value="{{ query }}">
-        <select name="category">
-            <option value="">All Categories</option>
-            <option value="Politics" {% if category == "politics" %}selected{% endif %}>Politics</option>
-            <option value="Business" {% if category == "business" %}selected{% endif %}>Business</option>
-            <option value="Technology" {% if category == "technology" %}selected{% endif %}>Technology</option>
-            <option value="Sports" {% if category == "sports" %}selected{% endif %}>Sports</option>
-        </select>
-        <button type="submit" class="rounded-btn">Search</button>
-    </form>
-
-    {% for article in articles %}
-        <div class="news-card">
-            <h2>{{ article.headline }}</h2>
-            <p><strong>Source:</strong> {{ article.name }} | <strong>Author:</strong> {{ article.author }}</p>
-            <p><strong>Published:</strong> {{ article.publication_date }}</p>
-            <p>{{ article.summary }}</p>
-            <p><strong>Category:</strong> {{ article.category }}</p>
-            {% if article.image_url != "N/A" %}
-                <img src="{{ article.image_url }}" alt="News Image" class="news-image">
-            {% endif %}
-            <p><a href="{{ article.article_url }}" target="_blank" class="read-more">Read Full Article</a></p>
-        </div>
-    {% endfor %}
-
-    <!-- Pagination Controls -->
+            <span class="icon moon">🌙</span>
+        </div>        
+        <button id="update-news" class="modern-button">🔄 Update News</button>
+    </header>
+    
+    <section id="news-container">
+        {% for article in news %}
+            <div class="news-card">
+                <h2>{{ article.title }}</h2>
+                <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
+                <p><strong>Published:</strong> {{ article.publishedAt }}</p>
+                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image">
+                <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
+            </div>
+        {% endfor %}
+    </section>
+    
     <div class="pagination">
-        {% if page > 1 %}
-            <a href="{{ url_for('home', q=query, category=category, page=1) }}" class="rounded-btn">First</a>
-            <a href="{{ url_for('home', q=query, category=category, page=page-1) }}" class="rounded-btn">Previous</a>
-        {% endif %}
+        <a href="?page=1" class="rounded">First</a>
+        <a href="?page={{ page - 1 }}" class="rounded" {% if page == 1 %}style="visibility: hidden;"{% endif %}>Previous</a>
         <span>Page {{ page }} of {{ total_pages }}</span>
         {% if page < total_pages %}
-            <a href="{{ url_for('home', q=query, category=category, page=page+1) }}" class="rounded-btn">Next</a>
-            <a href="{{ url_for('home', q=query, category=category, page=total_pages) }}" class="rounded-btn">Last</a>
+            <a href="?page={{ page + 1 }}" class="rounded">Next</a>
+            <a href="?page={{ total_pages }}" class="rounded">Last</a>
         {% endif %}
     </div>
-
-    <button id="scrollToTop" class="scroll-btn">↑</button>
+      
 </body>
 </html>
