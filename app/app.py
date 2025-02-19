@@ -23,7 +23,7 @@ def fetch_and_store_news():
                     "title": article["title"],
                     "source": article["source"]["name"],
                     "author": article.get("author", "N/A"),
-                    "publishedAt": article.get("publishedAt", datetime.datetime.utcnow()),
+                    "publishedAt": article.get("publishedAt", datetime.datetime.now()),
                     "url": article["url"],
                     "urlToImage": article.get("urlToImage", ""),
                     "category": "General"
