@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
@@ -47,6 +47,29 @@ def index():
     news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
     
     return render_template("index.html", news=news, page=page, total_pages=total_pages)
+
+@app.route('/update_news', methods=['GET'])
+def update_news():
+    fetch_and_store_news()
+    return jsonify({"status": "success", "message": "News updated!"})
+
+@app.route('/load_latest_news')
+def load_latest_news():
+    latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
+
+    news_data = [
+        {
+            "title": item["title"],
+            "source": item["source"],
+            "author": item.get("author", "N/A"),
+            "publishedAt": item.get("publishedAt", "").strftime("%Y-%m-%d %H:%M:%S") if "publishedAt" in item else "",
+            "url": item["url"],
+            "urlToImage": item.get("urlToImage", "")
+        } for item in latest_news
+    ]
+
+    return jsonify({"news": news_data})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

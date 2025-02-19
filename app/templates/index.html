@@ -6,17 +6,10 @@
     <title>News Aggregator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
-    <style>
-        h1 {
-            margin: 0 auto;
-            width: fit-content;
-        }
-        div {
-            margin: 0 auto;
-            width: fit-content;
-        }
-    </style>
 </head>
+<style>
+    h1 {text-align: center;}
+</style>
 <body>
     <header>
         <h1>Latest News</h1>
@@ -27,23 +20,23 @@
                 <span class="slider round"></span>
             </label>
             <span class="icon moon">🌙</span>
-            <button id="update-news" class="modern-button">🔄 Update News</button>
+            <button id="update-news" class="modern-button center-button">🔄 Update News</button>
         </div>
     </header>
     
     <section id="news-container">
         {% for article in news %}
-            <div class="news-card">
+            <div class="news-card small-news">
                 <h2>{{ article.title }}</h2>
                 <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
                 <p><strong>Published:</strong> {{ article.publishedAt }}</p>
-                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image">
+                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image small-news-image">
                 <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
             </div>
         {% endfor %}
     </section>
     
-    <div class="pagination">
+    <div class="pagination center-pagination">
         <a href="?page=1" class="rounded">First</a>
         <a href="?page={{ page - 1 }}" class="rounded" {% if page == 1 %}style="visibility: hidden;"{% endif %}>Previous</a>
         <span>Page {{ page }} of {{ total_pages }}</span>
