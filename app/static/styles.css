@@ -18,6 +18,7 @@ body {
     color: white;
     text-decoration: none;
     font-weight: bold;
+    margin: 20px auto;
 }
 
 /* Toggle Switch */
@@ -76,7 +77,6 @@ input:checked + .slider:before {
     cursor: pointer;
     transition: 0.3s;
     margin: 20px auto;
-    align-items: center;
 }
 
 .modern-button:hover {

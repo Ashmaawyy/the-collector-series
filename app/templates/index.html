@@ -6,6 +6,16 @@
     <title>News Aggregator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <style>
+        h1 {
+            margin: 0 auto;
+            width: fit-content;
+        }
+        div {
+            margin: 0 auto;
+            width: fit-content;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -17,8 +27,8 @@
                 <span class="slider round"></span>
             </label>
             <span class="icon moon">🌙</span>
-        </div>        
-        <button id="update-news" class="modern-button">🔄 Update News</button>
+            <button id="update-news" class="modern-button">🔄 Update News</button>
+        </div>
     </header>
     
     <section id="news-container">
