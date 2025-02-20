@@ -62,7 +62,7 @@ def load_latest_news():
             "title": item["title"],
             "source": item["source"],
             "author": item.get("author", "N/A"),
-            "publishedAt": item.get("publishedAt", "").strftime("%Y-%m-%d %H:%M:%S") if "publishedAt" in item else "",
+            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
             "urlToImage": item.get("urlToImage", "")
         } for item in latest_news
