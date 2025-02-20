@@ -133,6 +133,7 @@ input:checked + .slider:before {
     cursor: pointer;
     display: none; /* Initially hidden */
     transition: opacity 0.3s ease-in-out;
+    z-index: 1000; /* Ensure it's above other elements */
 }
 
 .back-to-top:hover {
