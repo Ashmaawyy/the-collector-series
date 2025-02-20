@@ -35,17 +35,7 @@
             </div>
         {% endfor %}
     </section>
-    
-    <div class="pagination center-pagination">
-        <a href="?page=1" class="rounded">First</a>
-        <a href="?page={{ page - 1 }}" class="rounded" {% if page == 1 %}style="visibility: hidden;"{% endif %}>Previous</a>
-        <span>Page {{ page }} of {{ total_pages }}</span>
-        {% if page < total_pages %}
-            <a href="?page={{ page + 1 }}" class="rounded">Next</a>
-            <a href="?page={{ total_pages }}" class="rounded">Last</a>
-        {% endif %}
-    </div>
-    <button id="back-to-top" class="back-to-top">⬆️ Top</button>
+    <button id="back-to-top" class="back-to-top back-to-top-hover">⬆️ Top</button>
       
 </body>
 </html>

@@ -70,6 +70,7 @@ def load_latest_news():
 
     return jsonify({"news": news_data})
 @app.route('/load_more_news')
+
 def load_more_news():
     page = request.args.get("page", 1, type=int)
     per_page = 10  # Load more news per scroll
