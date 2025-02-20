@@ -66,6 +66,7 @@ input:checked + .slider:before {
     transform: translateX(25px);
 }
 
+/*
 .modern-button {
     padding: 10px 15px;
     border-radius: 25px;
@@ -77,6 +78,7 @@ input:checked + .slider:before {
     transition: 0.3s;
     margin: 20px auto;
 }
+*/
 
 .modern-button:hover {
     background: linear-gradient(135deg, #0056b3, #003d80);

@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleSwitch = document.getElementById("theme-toggle");
     const body = document.body;
     const updateNewsBtn = document.getElementById("update-news");
+    const backToTopBtn = document.getElementById("back-to-top");
     const moonIcon = document.querySelector(".moon");
     const sunIcon = document.querySelector(".sun");
 
@@ -30,7 +31,7 @@ toggleSwitch.addEventListener("change", function () {
     }
 });
 
-updateNewsBtn.addEventListener("click", function () {
+updateNewsBtn.addEventListener("scroll", function () {
     fetch("/update_news").then(response => response.json()).then(data => {
         alert("News Updated!");
         location.reload();
@@ -77,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
             loadMoreNews();
         }
-        
+
         // Show or hide back to top button
         if (window.scrollY > 300) {
             backToTopBtn.style.display = "block";
@@ -86,7 +87,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    backToTopBtn.addEventListener("click", function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
 });
