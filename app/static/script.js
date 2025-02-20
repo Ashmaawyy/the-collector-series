@@ -39,18 +39,19 @@ updateNewsBtn.addEventListener("click", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    let isRefreshing = false;
+    let page = 1;
+    let loading = false;
 
-    async function refreshNews() {
-        if (isRefreshing) return;
-        isRefreshing = true;
+    async function loadMoreNews() {
+        if (loading) return;
+        loading = true;
 
-        const response = await fetch(`/load_latest_news`);
+        const response = await fetch(`/load_more_news?page=${page}`);
         const data = await response.json();
 
         if (data.news.length > 0) {
             const newsContainer = document.getElementById("news-container");
-            data.news.reverse().forEach(article => {
+            data.news.forEach(article => {
                 const newsCard = document.createElement("div");
                 newsCard.classList.add("news-card", "small-news");
                 newsCard.style.opacity = "0"; // Initial fade effect
@@ -63,29 +64,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
                 `;
 
-                newsContainer.prepend(newsCard);
+                newsContainer.appendChild(newsCard);
                 setTimeout(() => newsCard.style.opacity = "1", 200); // Fade in effect
             });
 
-            isRefreshing = false;
+            page++; // Move to next page
+            loading = false;
         }
     }
 
-    let startY = 0;
-    window.addEventListener("touchstart", function (event) {
-        startY = event.touches[0].clientY;
-    });
-
-    window.addEventListener("touchend", function (event) {
-        let endY = event.changedTouches[0].clientY;
-        if (endY - startY > 50) {
-            refreshNews();
-        }
-    });
-
-    window.addEventListener("wheel", function (event) {
-        if (window.scrollY === 0 && event.deltaY < 0) {
-            refreshNews();
+    window.addEventListener("scroll", function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+            loadMoreNews();
         }
     });
 });

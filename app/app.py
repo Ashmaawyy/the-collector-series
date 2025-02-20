@@ -69,6 +69,26 @@ def load_latest_news():
     ]
 
     return jsonify({"news": news_data})
+@app.route('/load_more_news')
+def load_more_news():
+    page = request.args.get("page", 1, type=int)
+    per_page = 10  # Load more news per scroll
+
+    # Correctly skip older news to get new ones
+    news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+
+    news_data = [
+        {
+            "title": item["title"],
+            "source": item["source"],
+            "author": item.get("author", "N/A"),
+            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
+            "url": item["url"],
+            "urlToImage": item.get("urlToImage", "")
+        } for item in news
+    ]
+
+    return jsonify({"news": news_data, "page": page})
 
 if __name__ == "__main__":
     app.run(debug=True)
