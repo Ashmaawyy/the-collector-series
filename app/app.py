@@ -91,5 +91,23 @@ def load_more_news():
 
     return jsonify({"news": news_data, "page": page})
 
+@app.route('/search_news')
+def search_news():
+    query = request.args.get("q", "").lower()
+    news = list(news_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
+
+    news_data = [
+        {
+            "title": item["title"],
+            "source": item["source"],
+            "author": item.get("author", "N/A"),
+            "publishedAt": item.get("publishedAt", ""),
+            "url": item["url"],
+            "urlToImage": item.get("urlToImage", "")
+        } for item in news
+    ]
+
+    return jsonify({"news": news_data})
+
 if __name__ == "__main__":
     app.run(debug=True)
