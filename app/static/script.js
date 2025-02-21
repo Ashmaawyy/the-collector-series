@@ -5,44 +5,75 @@ document.addEventListener("DOMContentLoaded", function () {
     const backToTopBtn = document.getElementById("back-to-top");
     const moonIcon = document.querySelector(".moon");
     const sunIcon = document.querySelector(".sun");
+    const searchInput = document.getElementById("search-input");
+    const searchBtn = document.getElementById("search-btn");
 
- // Default to dark mode
- if (localStorage.getItem("theme") !== "light") {
-    body.classList.add("dark-mode");
-    toggleSwitch.checked = true;
-    moonIcon.style.opacity = "1";
-    sunIcon.style.opacity = "0.3";
-} else {
-    moonIcon.style.opacity = "0.3";
-    sunIcon.style.opacity = "1";
-}
+    // Search button functionality
+    searchBtn.addEventListener("click", function () {
+        const query = searchInput.value.trim();
+        if (query !== "") {
+            fetch(`/search_news?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const newsContainer = document.getElementById("news-container");
+                    newsContainer.innerHTML = ""; // Clear existing news
 
-toggleSwitch.addEventListener("change", function () {
-    if (this.checked) {
+                    data.news.forEach(article => {
+                        const newsCard = document.createElement("div");
+                        newsCard.classList.add("news-card", "small-news");
+                        newsCard.innerHTML = `
+                            <h2>${article.title}</h2>
+                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
+                            <p><strong>Published:</strong> ${article.publishedAt}</p>
+                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
+                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                        `;
+                        newsContainer.appendChild(newsCard);
+                    });
+                });
+        }
+    });
+
+    // Default to dark mode
+    if (localStorage.getItem("theme") !== "light") {
         body.classList.add("dark-mode");
-        localStorage.setItem("theme", "dark");
+        toggleSwitch.checked = true;
         moonIcon.style.opacity = "1";
         sunIcon.style.opacity = "0.3";
     } else {
-        body.classList.remove("dark-mode");
-        localStorage.setItem("theme", "light");
         moonIcon.style.opacity = "0.3";
         sunIcon.style.opacity = "1";
     }
-});
 
-updateNewsBtn.addEventListener("scroll", function () {
-    fetch("/update_news").then(response => response.json()).then(data => {
-        alert("News Updated!");
-        location.reload();
+    // Theme toggle functionality
+    toggleSwitch.addEventListener("change", function () {
+        if (this.checked) {
+            body.classList.add("dark-mode");
+            localStorage.setItem("theme", "dark");
+            moonIcon.style.opacity = "1";
+            sunIcon.style.opacity = "0.3";
+        } else {
+            body.classList.remove("dark-mode");
+            localStorage.setItem("theme", "light");
+            moonIcon.style.opacity = "0.3";
+            sunIcon.style.opacity = "1";
+        }
     });
-});
-});
 
-document.addEventListener("DOMContentLoaded", function () {
+    // Fix: Change event listener from "scroll" to "click" for updating news
+    updateNewsBtn.addEventListener("click", function () {
+        fetch("/update_news")
+            .then(response => response.json())
+            .then(data => {
+                alert("News Updated!");
+                location.reload();
+            });
+    });
+
     let page = 1;
     let loading = false;
 
+    // Infinite scroll for loading more news
     async function loadMoreNews() {
         if (loading) return;
         loading = true;
@@ -74,6 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Scroll event listener
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
             loadMoreNews();
@@ -85,6 +117,11 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             backToTopBtn.style.display = "none";
         }
+    });
+
+    // Fix: Ensure the back to top button works properly
+    backToTopBtn.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
 });
