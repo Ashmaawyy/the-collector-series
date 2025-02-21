@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const header = document.querySelector("header");
     const searchContainer = document.querySelector(".search-container");
 
+    let lastScrollPosition = 0;
+
     function applyTheme(theme) {
         if (theme === "dark") {
             body.classList.add("dark-mode");
@@ -39,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
+            lastScrollPosition = window.scrollY; // Store the current scroll position
             fetch(`/search_news?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
@@ -58,11 +61,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         newsContainer.appendChild(newsCard);
                     });
                 });
+        } else {
+            window.scrollTo(0, lastScrollPosition); // Restore the scroll position
         }
     }
 
     searchInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
+            performSearch();
+        }
+    });
+
+    searchInput.addEventListener("input", function () {
+        if (searchInput.value.trim() === "") {
             performSearch();
         }
     });
