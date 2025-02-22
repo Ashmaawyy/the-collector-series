@@ -1,113 +1,106 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-import requests
 import datetime
+from scholarly import scholarly
 
 app = Flask(__name__)
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientefic-collector"]
-news_collection = db["scientefic-collection"]
+papers_collection = db["scientefic-papers"]
 
-def fetch_and_store_news():
-    api_url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=1f44150911944ca9bb27320681169afc"
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        articles = response.json().get("articles", [])
-        for article in articles:
-            if not news_collection.find_one({"title": article["title"]}):
-                news_collection.insert_one({
-                    "title": article["title"],
-                    "source": article["source"]["name"],
-                    "author": article.get("author", "N/A"),
-                    "publishedAt": article.get("publishedAt", datetime.datetime.now()),
-                    "url": article["url"],
-                    "urlToImage": article.get("urlToImage", ""),
-                    "category": "General"
-                })
-        print("News Updated!")
-    else:
-        print("Failed to fetch news.")
+def fetch_and_store_papers():
+    search_query = scholarly.search_pubs("scientific papers")
+    for paper in search_query:
+        paper_data = scholarly.fill(paper)
+        if not papers_collection.find_one({"title": paper_data["bib"]["title"]}):
+            papers_collection.insert_one({
+                "title": paper_data["bib"]["title"],
+                "author": paper_data["bib"].get("author", "N/A"),
+                "publishedAt": paper_data["bib"].get("pub_year", datetime.datetime.now().year),
+                "url": paper_data.get("eprint_url", ""),
+                "abstract": paper_data["bib"].get("abstract", ""),
+                "journal": paper_data["bib"].get("journal", "N/A")
+            })
+    print("Papers Updated!")
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_news, "interval", minutes=5)
+scheduler.add_job(fetch_and_store_papers, "interval", minutes=60)
 scheduler.start()
 
 @app.route('/')
 def index():
     page = request.args.get("page", 1, type=int)
     per_page = 5
-    total_count = news_collection.count_documents({})
+    total_count = papers_collection.count_documents({})
     total_pages = (total_count + per_page - 1) // per_page
     
-    news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+    papers = list(papers_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
     
-    return render_template("index.html", news=news, page=page, total_pages=total_pages)
+    return render_template("index.html", papers=papers, page=page, total_pages=total_pages)
 
-@app.route('/update_news', methods=['GET'])
-def update_news():
-    fetch_and_store_news()
-    return jsonify({"status": "success", "message": "News updated!"})
+@app.route('/update_papers', methods=['GET'])
+def update_papers():
+    fetch_and_store_papers()
+    return jsonify({"status": "success", "message": "Papers updated!"})
 
-@app.route('/load_latest_news')
-def load_latest_news():
-    latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
+@app.route('/load_latest_papers')
+def load_latest_papers():
+    latest_papers = list(papers_collection.find().sort("publishedAt", -1).limit(5))
 
-    news_data = [
+    papers_data = [
         {
             "title": item["title"],
-            "source": item["source"],
             "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
+            "publishedAt": item["publishedAt"],
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in latest_news
+            "abstract": item.get("abstract", ""),
+            "journal": item.get("journal", "N/A")
+        } for item in latest_papers
     ]
 
-    return jsonify({"news": news_data})
-@app.route('/load_more_news')
+    return jsonify({"papers": papers_data})
 
-def load_more_news():
+@app.route('/load_more_papers')
+def load_more_papers():
     page = request.args.get("page", 1, type=int)
-    per_page = 10  # Load more news per scroll
+    per_page = 10  # Load more papers per scroll
 
-    # Correctly skip older news to get new ones
-    news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+    papers = list(papers_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
 
-    news_data = [
+    papers_data = [
         {
             "title": item["title"],
-            "source": item["source"],
             "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
+            "publishedAt": item["publishedAt"],
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in news
+            "abstract": item.get("abstract", ""),
+            "journal": item.get("journal", "N/A")
+        } for item in papers
     ]
 
-    return jsonify({"news": news_data, "page": page})
+    return jsonify({"papers": papers_data, "page": page})
 
-@app.route('/search_news')
-def search_news():
+@app.route('/search_papers')
+def search_papers():
     query = request.args.get("q", "").lower()
-    news = list(news_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
+    papers = list(papers_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
 
-    news_data = [
+    papers_data = [
         {
             "title": item["title"],
-            "source": item["source"],
             "author": item.get("author", "N/A"),
             "publishedAt": item.get("publishedAt", ""),
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in news
+            "abstract": item.get("abstract", ""),
+            "journal": item.get("journal", "N/A")
+        } for item in papers
     ]
 
-    return jsonify({"news": news_data})
+    return jsonify({"papers": papers_data})
 
 if __name__ == "__main__":
     app.run(debug=True)

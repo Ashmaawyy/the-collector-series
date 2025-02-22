@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -39,23 +38,24 @@ document.addEventListener("DOMContentLoaded", function () {
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
-            fetch(`/search_news?q=${query}`)
+            fetch(`/search_papers?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
-                    const newsContainer = document.getElementById("news-container");
-                    newsContainer.innerHTML = "";
+                    const papersContainer = document.getElementById("papers-container");
+                    papersContainer.innerHTML = "";
 
-                    data.news.forEach(article => {
-                        const newsCard = document.createElement("div");
-                        newsCard.classList.add("news-card", "small-news");
-                        newsCard.innerHTML = `
-                            <h2>${article.title}</h2>
-                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                            <p><strong>Published:</strong> ${article.publishedAt}</p>
-                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                    data.papers.forEach(paper => {
+                        const paperCard = document.createElement("div");
+                        paperCard.classList.add("paper-card", "small-paper");
+                        paperCard.innerHTML = `
+                            <h2>${paper.title}</h2>
+                            <p><strong>Author:</strong> ${paper.author}</p>
+                            <p><strong>Published:</strong> ${paper.publishedAt}</p>
+                            <p><strong>Journal:</strong> ${paper.journal}</p>
+                            <p>${paper.abstract}</p>
+                            <a href="${paper.url}" target="_blank">Read Full Paper</a>
                         `;
-                        newsContainer.appendChild(newsCard);
+                        papersContainer.appendChild(paperCard);
                     });
                 });
         }
@@ -70,30 +70,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
-    async function loadMoreNews() {
+    async function loadMorePapers() {
         if (loading) return;
         loading = true;
 
-        const response = await fetch(`/load_more_news?page=${page}`);
+        const response = await fetch(`/load_more_papers?page=${page}`);
         const data = await response.json();
 
-        if (data.news.length > 0) {
-            const newsContainer = document.getElementById("news-container");
-            data.news.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card", "small-news");
-                newsCard.style.opacity = "0";
+        if (data.papers.length > 0) {
+            const papersContainer = document.getElementById("papers-container");
+            data.papers.forEach(paper => {
+                const paperCard = document.createElement("div");
+                paperCard.classList.add("paper-card", "small-paper");
+                paperCard.style.opacity = "0";
 
-                newsCard.innerHTML = `
-                    <h2>${article.title}</h2>
-                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                    <p><strong>Published:</strong> ${article.publishedAt}</p>
-                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                paperCard.innerHTML = `
+                    <h2>${paper.title}</h2>
+                    <p><strong>Author:</strong> ${paper.author}</p>
+                    <p><strong>Published:</strong> ${paper.publishedAt}</p>
+                    <p><strong>Journal:</strong> ${paper.journal}</p>
+                    <p>${paper.abstract}</p>
+                    <a href="${paper.url}" target="_blank">Read Full Paper</a>
                 `;
 
-                newsContainer.appendChild(newsCard);
-                setTimeout(() => newsCard.style.opacity = "1", 200);
+                papersContainer.appendChild(paperCard);
+                setTimeout(() => paperCard.style.opacity = "1", 200);
             });
 
             page++;
@@ -103,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-            loadMoreNews();
+            loadMorePapers();
         }
 
         if (window.scrollY > 300) {
