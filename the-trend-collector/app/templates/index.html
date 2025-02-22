@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The News Collector</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <script defer src="https://kit.fontawesome.com/7b3b8f7d0d.js" crossorigin="anonymous"></script>
+    <script defer src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="theme-switch">
+            <span class="icon sun">☀️</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
+            </label>
+            <span class="icon moon">🌙</span>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-box" placeholder="Search news...">
+        </div>
+    </header>
+    
+    <section id="news-container">
+        {% for article in news %}
+            <div class="news-card small-news">
+                <h2>{{ article.title }}</h2>
+                <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
+                <p><strong>Published:</strong> {{ article.publishedAt }}</p>
+                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image small-news-image">
+                <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
+            </div>
+        {% endfor %}
+    </section>
+    <button id="back-to-top" class="back-to-top">⏫</button>
+</body>
+</html>

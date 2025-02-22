@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>The Scientific Collector</title>
+    <link rel=\"stylesheet\" href=\"{{ url_for('static', filename='styles.css') }}\">
+    <script defer src=\"{{ url_for('static', filename='script.js') }}\"></script>
+</head>
+<body>
+    <header>
+        <h1>🔬 Scientific Articles</h1>
+        <div class=\"search-container\">
+            <input type=\"text\" id=\"search-input\" class=\"search-box\" placeholder=\"Search papers...\">
+        </div>
+    </header>
+    <section id=\"articles-container\"></section>
+    <button id=\"back-to-top\" class=\"back-to-top\">⬆️ Top</button>
+</body>
+</html>
