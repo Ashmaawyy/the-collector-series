@@ -3,6 +3,14 @@ from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import datetime
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from keys.env
+load_dotenv('keys.env')
+
+# Get the API key from the environment variable
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 
 app = Flask(__name__)
 
@@ -12,7 +20,7 @@ db = client["the-news-collector"]
 news_collection = db["news-collection"]
 
 def fetch_and_store_news():
-    api_url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=1f44150911944ca9bb27320681169afc"
+    api_url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWS_API_KEY}"
     response = requests.get(api_url)
     
     if response.status_code == 200:
@@ -69,13 +77,12 @@ def load_latest_news():
     ]
 
     return jsonify({"news": news_data})
-@app.route('/load_more_news')
 
+@app.route('/load_more_news')
 def load_more_news():
     page = request.args.get("page", 1, type=int)
     per_page = 10  # Load more news per scroll
 
-    # Correctly skip older news to get new ones
     news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
 
     news_data = [

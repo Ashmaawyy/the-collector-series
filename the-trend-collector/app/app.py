@@ -6,6 +6,21 @@ import datetime
 import tweepy
 import praw  # Reddit API
 from googleapiclient.discovery import build  # YouTube API
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from keys.env
+load_dotenv('keys.env')
+
+# Get the API keys from the environment variables
+TWITTER_CONSUMER_KEY = os.getenv('TWITTER_CONSUMER_KEY')
+TWITTER_CONSUMER_SECRET = os.getenv('TWITTER_CONSUMER_SECRET')
+TWITTER_ACCESS_TOKEN = os.getenv('TWITTER_ACCESS_TOKEN')
+TWITTER_ACCESS_TOKEN_SECRET = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
+REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
+REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 
 app = Flask(__name__)
 
@@ -15,22 +30,16 @@ db = client["the-trend-collector"]
 trends_collection = db["trend-collection"]
 
 # Twitter API Setup
-consumer_key = "YOUR_CONSUMER_KEY"
-consumer_secret = "YOUR_CONSUMER_SECRET"
-access_token = "YOUR_ACCESS_TOKEN"
-access_token_secret = "YOUR_ACCESS_TOKEN_SECRET"
-
-auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+auth = tweepy.OAuth1UserHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 twitter_api = tweepy.API(auth)
 
 # Reddit API Setup
-reddit = praw.Reddit(client_id='YOUR_REDDIT_CLIENT_ID',
-                     client_secret='YOUR_REDDIT_CLIENT_SECRET',
-                     user_agent='YOUR_USER_AGENT')
+reddit = praw.Reddit(client_id=REDDIT_CLIENT_ID,
+                     client_secret=REDDIT_CLIENT_SECRET,
+                     user_agent=REDDIT_USER_AGENT)
 
 # YouTube API Setup
-youtube_api_key = "YOUR_YOUTUBE_API_KEY"
-youtube = build('youtube', 'v3', developerKey=youtube_api_key)
+youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
 def fetch_and_store_twitter_trends():
     try:
