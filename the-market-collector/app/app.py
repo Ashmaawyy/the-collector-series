@@ -45,7 +45,7 @@ def fetch_and_store_stocks():
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_stocks, "interval", hours=1)
+scheduler.add_job(fetch_and_store_stocks, "interval", minutes=5)
 scheduler.start()
 
 @app.route('/')
