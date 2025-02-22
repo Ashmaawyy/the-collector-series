@@ -28,7 +28,7 @@ def fetch_and_store_papers():
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_papers, "interval", minutes=60)
+scheduler.add_job(fetch_and_store_papers, "interval", minutes=5)
 scheduler.start()
 
 @app.route('/')
