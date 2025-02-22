@@ -6,6 +6,7 @@ from scholarly import scholarly
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-papers"]
+temp_papers_collection = db["temp-papers"]
 
 def fetch_papers(query="scientific papers"):
     """
@@ -41,15 +42,19 @@ def store_papers(papers):
     else:
         print(f"⚠ No valid papers to insert.")
 
-def get_latest_papers(limit=50):
+def fetch_and_store_temp_papers():
     """
-    Fetches the latest scientific papers from MongoDB.
-    Returns a list of structured papers sorted by published date.
+    Fetches papers and stores them in a temporary collection.
     """
-    latest_papers = list(
-        papers_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publishedAt", -1)  # Sort by latest published date
-        .limit(limit)  # Limit results
-    )
+    papers = fetch_papers()
+    temp_papers_collection.insert_many(papers)
+    print(f"✅ Successfully fetched and stored {len(papers)} papers in the temporary collection.")
 
-    return latest_papers
+def store_temp_papers():
+    """
+    Stores papers from the temporary collection into the main collection.
+    """
+    temp_papers = list(temp_papers_collection.find())
+    store_papers(temp_papers)
+    temp_papers_collection.delete_many({})
+    print(f"✅ Successfully moved {len(temp_papers)} papers from the temporary collection to the main collection.")

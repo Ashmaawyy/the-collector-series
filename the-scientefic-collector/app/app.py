@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_papers, store_papers
+from models import fetch_and_store_temp_papers, store_temp_papers
 from pymongo import MongoClient
 import datetime
 
@@ -11,13 +11,10 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-collection"]
 
-def fetch_and_store_papers():
-    papers = fetch_papers()
-    store_papers(papers)
-
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_papers, "interval", minutes=10)
+scheduler.add_job(fetch_and_store_temp_papers, "interval", minutes=10)
+scheduler.add_job(store_temp_papers, "interval", minutes=15)
 scheduler.start()
 
 @app.route('/')
@@ -33,7 +30,8 @@ def index():
 
 @app.route('/update_papers', methods=['GET'])
 def update_papers():
-    fetch_and_store_papers()
+    fetch_and_store_temp_papers()
+    store_temp_papers()
     return jsonify({"status": "success", "message": "Papers updated!"})
 
 @app.route('/load_latest_papers')
