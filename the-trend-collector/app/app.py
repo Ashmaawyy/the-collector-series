@@ -12,7 +12,7 @@ app = Flask(__name__)
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-trend-collector"]
-trends_collection = db["social-media-trends"]
+trends_collection = db["trend-collection"]
 
 # Twitter API Setup
 consumer_key = "YOUR_CONSUMER_KEY"
