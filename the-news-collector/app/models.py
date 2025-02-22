@@ -1,45 +1,43 @@
-from config import COLLECTION_NAME
-from app import db
+from pymongo import MongoClient
 from datetime import datetime
 
-news_collection = db[COLLECTION_NAME]
+# MongoDB Setup
+client = MongoClient("mongodb://localhost:27017/")
+db = client["the-news-collector"]
+articles_collection = db["news-articles"]
 
-def store_headlines(source, articles):
+def store_articles(articles):
     """
-    Stores scraped news articles in MongoDB with the new data structure.
+    Stores news articles in MongoDB with the new data structure.
     """
     formatted_articles = []
 
     for article in articles:
         data = {
-            "name": source,  # News source name (e.g., BBC, CNN)
             "headline": article.get("headline", "N/A"),
-            "article_url": article.get("article_url", "N/A"),
-            "publication_date": article.get("publication_date", datetime.utcnow()),  # Default to now if missing
-            "author": article.get("author", "N/A"),
             "summary": article.get("summary", "N/A"),
-            "category": article.get("category", "N/A"),
-            "image_url": article.get("image_url", "N/A"),
-            "keywords": article.get("keywords", "").split(", ") if "keywords" in article else []
+            "publishedAt": article.get("publishedAt", datetime.utcnow()),  # Default to now if missing
+            "url": article.get("url", "N/A"),
+            "author": article.get("author", "N/A"),
+            "category": article.get("category", "N/A")
         }
         formatted_articles.append(data)
 
     if formatted_articles:
-        news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles from {source} into MongoDB.")
+        articles_collection.insert_many(formatted_articles)
+        print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert for {source}.")
+        print(f"⚠ No valid articles to insert.")
 
-
-def get_latest_headlines(limit=5):
+def get_latest_headlines(limit=50):
     """
     Fetches the latest news articles from MongoDB.
-    Returns a list of structured articles sorted by publication date.
+    Returns a list of structured articles sorted by published date.
     """
-    latest_news = list(
-        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publication_date", -1)  # Sort by latest publication date
+    latest_articles = list(
+        articles_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
+        .sort("publishedAt", -1)  # Sort by latest published date
         .limit(limit)  # Limit results
     )
 
-    return latest_news
+    return latest_articles

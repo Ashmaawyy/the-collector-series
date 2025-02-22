@@ -22,7 +22,7 @@ def home():
         summary_match = query in article["summary"].lower() if query else True
         category_match = article["category"].lower() == category if category else True
 
-        if headline_match or summary_match and category_match:
+        if (headline_match or summary_match) and category_match:
             filtered_articles.append(article)
 
     # Pagination logic

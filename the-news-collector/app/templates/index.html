@@ -22,21 +22,29 @@
             <span class="icon moon">🌙</span>
         </div>
         <div class="search-container">
-            <input type="text" id="search-input" class="search-box" placeholder="Search news...">
+            <input type="text" id="search-input" class="search-box" placeholder="Search articles...">
         </div>
     </header>
     
-    <section id="news-container">
-        {% for article in news %}
-            <div class="news-card small-news">
-                <h2>{{ article.title }}</h2>
-                <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
-                <p><strong>Published:</strong> {{ article.publishedAt }}</p>
-                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image small-news-image">
-                <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
+    <section id="articles-container">
+        {% for article in articles %}
+            <div class="article-card small-article">
+                <h2>{{ article.headline }}</h2>
+                <p><strong>Author:</strong> {{ article.author }}</p>
+                <p><strong>Published At:</strong> {{ article.publishedAt }}</p>
+                <p>{{ article.summary }}</p>
+                <a href="{{ article.url }}" target="_blank">Read Full Article</a>
             </div>
         {% endfor %}
     </section>
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="/?page={{ page - 1 }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}">Previous</a>
+        {% endif %}
+        {% if page < total_pages %}
+            <a href="/?page={{ page + 1 }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}">Next</a>
+        {% endif %}
+    </div>
     <button id="back-to-top" class="back-to-top">⏫</button>
 </body>
 </html>
