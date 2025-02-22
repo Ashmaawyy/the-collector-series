@@ -1,10 +1,29 @@
 from pymongo import MongoClient
 from datetime import datetime
+from scholarly import scholarly
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-papers"]
+
+def fetch_papers(query="scientific papers"):
+    """
+    Fetches scientific papers using the scholarly library.
+    """
+    search_query = scholarly.search_pubs(query)
+    papers = []
+    for paper in search_query:
+        paper_data = scholarly.fill(paper)
+        papers.append({
+            "title": paper_data["bib"]["title"],
+            "author": paper_data["bib"].get("author", "N/A"),
+            "publishedAt": paper_data["bib"].get("pub_year", datetime.utcnow().year),
+            "url": paper_data.get("eprint_url", ""),
+            "abstract": paper_data["bib"].get("abstract", ""),
+            "journal": paper_data["bib"].get("journal", "N/A")
+        })
+    return papers
 
 def store_papers(papers):
     """
@@ -13,16 +32,8 @@ def store_papers(papers):
     formatted_papers = []
 
     for paper in papers:
-        data = {
-            "title": paper.get("title", "N/A"),
-            "author": paper.get("author", "N/A"),
-            "publishedAt": paper.get("publishedAt", datetime.utcnow()),  # Default to now if missing
-            "url": paper.get("url", "N/A"),
-            "abstract": paper.get("abstract", "N/A"),
-            "journal": paper.get("journal", "N/A"),
-            "category": paper.get("category", "N/A")
-        }
-        formatted_papers.append(data)
+        if not papers_collection.find_one({"title": paper["title"]}):
+            formatted_papers.append(paper)
 
     if formatted_papers:
         papers_collection.insert_many(formatted_papers)

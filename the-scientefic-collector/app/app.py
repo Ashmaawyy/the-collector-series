@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
+from models import fetch_papers, store_papers
+from pymongo import MongoClient
 import datetime
-from scholarly import scholarly
 
 app = Flask(__name__)
 
@@ -12,19 +12,8 @@ db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-collection"]
 
 def fetch_and_store_papers():
-    search_query = scholarly.search_pubs("scientific papers")
-    for paper in search_query:
-        paper_data = scholarly.fill(paper)
-        if not papers_collection.find_one({"title": paper_data["bib"]["title"]}):
-            papers_collection.insert_one({
-                "title": paper_data["bib"]["title"],
-                "author": paper_data["bib"].get("author", "N/A"),
-                "publishedAt": paper_data["bib"].get("pub_year", datetime.datetime.now().year),
-                "url": paper_data.get("eprint_url", ""),
-                "abstract": paper_data["bib"].get("abstract", ""),
-                "journal": paper_data["bib"].get("journal", "N/A")
-            })
-    print("Papers Updated!")
+    papers = fetch_papers()
+    store_papers(papers)
 
 # Scheduler
 scheduler = BackgroundScheduler()
