@@ -9,7 +9,7 @@ app = Flask(__name__)
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientefic-collector"]
-papers_collection = db["scientefic-papers"]
+papers_collection = db["scientefic-collection"]
 
 def fetch_and_store_papers():
     search_query = scholarly.search_pubs("scientific papers")

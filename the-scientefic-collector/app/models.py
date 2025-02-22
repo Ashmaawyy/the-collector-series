@@ -1,45 +1,44 @@
-from config import COLLECTION_NAME
-from app import db
+from pymongo import MongoClient
 from datetime import datetime
 
-news_collection = db[COLLECTION_NAME]
+# MongoDB Setup
+client = MongoClient("mongodb://localhost:27017/")
+db = client["the-scientefic-collector"]
+papers_collection = db["scientefic-papers"]
 
-def store_headlines(source, articles):
+def store_papers(papers):
     """
-    Stores scraped news articles in MongoDB with the new data structure.
+    Stores scraped scientific papers in MongoDB with the new data structure.
     """
-    formatted_articles = []
+    formatted_papers = []
 
-    for article in articles:
+    for paper in papers:
         data = {
-            "name": source,  # News source name (e.g., BBC, CNN)
-            "headline": article.get("headline", "N/A"),
-            "article_url": article.get("article_url", "N/A"),
-            "publication_date": article.get("publication_date", datetime.utcnow()),  # Default to now if missing
-            "author": article.get("author", "N/A"),
-            "summary": article.get("summary", "N/A"),
-            "category": article.get("category", "N/A"),
-            "image_url": article.get("image_url", "N/A"),
-            "keywords": article.get("keywords", "").split(", ") if "keywords" in article else []
+            "title": paper.get("title", "N/A"),
+            "author": paper.get("author", "N/A"),
+            "publishedAt": paper.get("publishedAt", datetime.utcnow()),  # Default to now if missing
+            "url": paper.get("url", "N/A"),
+            "abstract": paper.get("abstract", "N/A"),
+            "journal": paper.get("journal", "N/A"),
+            "category": paper.get("category", "N/A")
         }
-        formatted_articles.append(data)
+        formatted_papers.append(data)
 
-    if formatted_articles:
-        news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles from {source} into MongoDB.")
+    if formatted_papers:
+        papers_collection.insert_many(formatted_papers)
+        print(f"✅ Successfully inserted {len(formatted_papers)} papers into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert for {source}.")
+        print(f"⚠ No valid papers to insert.")
 
-
-def get_latest_headlines(limit=5):
+def get_latest_papers(limit=50):
     """
-    Fetches the latest news articles from MongoDB.
-    Returns a list of structured articles sorted by publication date.
+    Fetches the latest scientific papers from MongoDB.
+    Returns a list of structured papers sorted by published date.
     """
-    latest_news = list(
-        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publication_date", -1)  # Sort by latest publication date
+    latest_papers = list(
+        papers_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
+        .sort("publishedAt", -1)  # Sort by latest published date
         .limit(limit)  # Limit results
     )
 
-    return latest_news
+    return latest_papers
