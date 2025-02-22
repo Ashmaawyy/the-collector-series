@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -39,23 +38,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
-            fetch(`/search_news?q=${query}`)
+            fetch(`/search_stocks?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
-                    const newsContainer = document.getElementById("news-container");
-                    newsContainer.innerHTML = "";
+                    const stocksContainer = document.getElementById("stocks-container");
+                    stocksContainer.innerHTML = "";
 
-                    data.news.forEach(article => {
-                        const newsCard = document.createElement("div");
-                        newsCard.classList.add("news-card", "small-news");
-                        newsCard.innerHTML = `
-                            <h2>${article.title}</h2>
-                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                            <p><strong>Published:</strong> ${article.publishedAt}</p>
-                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                    data.stocks.forEach(stock => {
+                        const stockCard = document.createElement("div");
+                        stockCard.classList.add("stock-card", "small-stock");
+                        stockCard.innerHTML = `
+                            <h2>${stock.symbol}</h2>
+                            <p><strong>Timestamp:</strong> ${stock.timestamp}</p>
+                            <p><strong>Open:</strong> ${stock.open}</p>
+                            <p><strong>High:</strong> ${stock.high}</p>
+                            <p><strong>Low:</strong> ${stock.low}</p>
+                            <p><strong>Close:</strong> ${stock.close}</p>
+                            <p><strong>Volume:</strong> ${stock.volume}</p>
                         `;
-                        newsContainer.appendChild(newsCard);
+                        stocksContainer.appendChild(stockCard);
                     });
                 });
         }
@@ -70,30 +71,32 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
-    async function loadMoreNews() {
+    async function loadMoreStocks() {
         if (loading) return;
         loading = true;
 
-        const response = await fetch(`/load_more_news?page=${page}`);
+        const response = await fetch(`/load_more_stocks?page=${page}`);
         const data = await response.json();
 
-        if (data.news.length > 0) {
-            const newsContainer = document.getElementById("news-container");
-            data.news.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card", "small-news");
-                newsCard.style.opacity = "0";
+        if (data.stocks.length > 0) {
+            const stocksContainer = document.getElementById("stocks-container");
+            data.stocks.forEach(stock => {
+                const stockCard = document.createElement("div");
+                stockCard.classList.add("stock-card", "small-stock");
+                stockCard.style.opacity = "0";
 
-                newsCard.innerHTML = `
-                    <h2>${article.title}</h2>
-                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                    <p><strong>Published:</strong> ${article.publishedAt}</p>
-                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                stockCard.innerHTML = `
+                    <h2>${stock.symbol}</h2>
+                    <p><strong>Timestamp:</strong> ${stock.timestamp}</p>
+                    <p><strong>Open:</strong> ${stock.open}</p>
+                    <p><strong>High:</strong> ${stock.high}</p>
+                    <p><strong>Low:</strong> ${stock.low}</p>
+                    <p><strong>Close:</strong> ${stock.close}</p>
+                    <p><strong>Volume:</strong> ${stock.volume}</p>
                 `;
 
-                newsContainer.appendChild(newsCard);
-                setTimeout(() => newsCard.style.opacity = "1", 200);
+                stocksContainer.appendChild(stockCard);
+                setTimeout(() => stockCard.style.opacity = "1", 200);
             });
 
             page++;
@@ -103,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-            loadMoreNews();
+            loadMoreStocks();
         }
 
         if (window.scrollY > 300) {

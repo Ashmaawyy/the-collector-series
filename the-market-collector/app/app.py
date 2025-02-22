@@ -9,105 +9,110 @@ app = Flask(__name__)
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-market-collector"]
-news_collection = db["market-collection"]
+stocks_collection = db["market-stocks"]
 
-def fetch_and_store_news():
-    api_url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=1f44150911944ca9bb27320681169afc"
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        articles = response.json().get("articles", [])
-        for article in articles:
-            if not news_collection.find_one({"title": article["title"]}):
-                news_collection.insert_one({
-                    "title": article["title"],
-                    "source": article["source"]["name"],
-                    "author": article.get("author", "N/A"),
-                    "publishedAt": article.get("publishedAt", datetime.datetime.now()),
-                    "url": article["url"],
-                    "urlToImage": article.get("urlToImage", ""),
-                    "category": "General"
-                })
-        print("News Updated!")
-    else:
-        print("Failed to fetch news.")
+def fetch_and_store_stocks():
+    api_key = "YOUR_ALPHA_VANTAGE_API_KEY"
+    symbols = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Add more stock symbols as needed
+    for symbol in symbols:
+        api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=60min&apikey={api_key}"
+        response = requests.get(api_url)
+        
+        if response.status_code == 200:
+            data = response.json().get("Time Series (60min)", {})
+            for timestamp, stock_data in data.items():
+                if not stocks_collection.find_one({"symbol": symbol, "timestamp": timestamp}):
+                    stocks_collection.insert_one({
+                        "symbol": symbol,
+                        "timestamp": timestamp,
+                        "open": stock_data["1. open"],
+                        "high": stock_data["2. high"],
+                        "low": stock_data["3. low"],
+                        "close": stock_data["4. close"],
+                        "volume": stock_data["5. volume"]
+                    })
+            print(f"Stock data for {symbol} updated!")
+        else:
+            print(f"Failed to fetch stock data for {symbol}.")
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_news, "interval", minutes=5)
+scheduler.add_job(fetch_and_store_stocks, "interval", hours=1)
 scheduler.start()
 
 @app.route('/')
 def index():
     page = request.args.get("page", 1, type=int)
     per_page = 5
-    total_count = news_collection.count_documents({})
+    total_count = stocks_collection.count_documents({})
     total_pages = (total_count + per_page - 1) // per_page
     
-    news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+    stocks = list(stocks_collection.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
     
-    return render_template("index.html", news=news, page=page, total_pages=total_pages)
+    return render_template("index.html", stocks=stocks, page=page, total_pages=total_pages)
 
-@app.route('/update_news', methods=['GET'])
-def update_news():
-    fetch_and_store_news()
-    return jsonify({"status": "success", "message": "News updated!"})
+@app.route('/update_stocks', methods=['GET'])
+def update_stocks():
+    fetch_and_store_stocks()
+    return jsonify({"status": "success", "message": "Stock data updated!"})
 
-@app.route('/load_latest_news')
-def load_latest_news():
-    latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
+@app.route('/load_latest_stocks')
+def load_latest_stocks():
+    latest_stocks = list(stocks_collection.find().sort("timestamp", -1).limit(5))
 
-    news_data = [
+    stocks_data = [
         {
-            "title": item["title"],
-            "source": item["source"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
-            "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in latest_news
+            "symbol": item["symbol"],
+            "timestamp": item["timestamp"],
+            "open": item["open"],
+            "high": item["high"],
+            "low": item["low"],
+            "close": item["close"],
+            "volume": item["volume"]
+        } for item in latest_stocks
     ]
 
-    return jsonify({"news": news_data})
-@app.route('/load_more_news')
+    return jsonify({"stocks": stocks_data})
 
-def load_more_news():
+@app.route('/load_more_stocks')
+def load_more_stocks():
     page = request.args.get("page", 1, type=int)
-    per_page = 10  # Load more news per scroll
+    per_page = 10  # Load more stocks per scroll
 
-    # Correctly skip older news to get new ones
-    news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+    stocks = list(stocks_collection.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
 
-    news_data = [
+    stocks_data = [
         {
-            "title": item["title"],
-            "source": item["source"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
-            "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in news
+            "symbol": item["symbol"],
+            "timestamp": item["timestamp"],
+            "open": item["open"],
+            "high": item["high"],
+            "low": item["low"],
+            "close": item["close"],
+            "volume": item["volume"]
+        } for item in stocks
     ]
 
-    return jsonify({"news": news_data, "page": page})
+    return jsonify({"stocks": stocks_data, "page": page})
 
-@app.route('/search_news')
-def search_news():
-    query = request.args.get("q", "").lower()
-    news = list(news_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
+@app.route('/search_stocks')
+def search_stocks():
+    query = request.args.get("q", "").upper()
+    stocks = list(stocks_collection.find({"symbol": {"$regex": query, "$options": "i"}}).limit(10))
 
-    news_data = [
+    stocks_data = [
         {
-            "title": item["title"],
-            "source": item["source"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item.get("publishedAt", ""),
-            "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
-        } for item in news
+            "symbol": item["symbol"],
+            "timestamp": item["timestamp"],
+            "open": item["open"],
+            "high": item["high"],
+            "low": item["low"],
+            "close": item["close"],
+            "volume": item["volume"]
+        } for item in stocks
     ]
 
-    return jsonify({"news": news_data})
+    return jsonify({"stocks": stocks_data})
 
 if __name__ == "__main__":
     app.run(debug=True)

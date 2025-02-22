@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The News Collector</title>
+    <title>The Market Collector</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
@@ -22,18 +22,20 @@
             <span class="icon moon">🌙</span>
         </div>
         <div class="search-container">
-            <input type="text" id="search-input" class="search-box" placeholder="Search news...">
+            <input type="text" id="search-input" class="search-box" placeholder="Search stocks...">
         </div>
     </header>
     
-    <section id="news-container">
-        {% for article in news %}
-            <div class="news-card small-news">
-                <h2>{{ article.title }}</h2>
-                <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
-                <p><strong>Published:</strong> {{ article.publishedAt }}</p>
-                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image small-news-image">
-                <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
+    <section id="stocks-container">
+        {% for stock in stocks %}
+            <div class="stock-card small-stock">
+                <h2>{{ stock.symbol }}</h2>
+                <p><strong>Timestamp:</strong> {{ stock.timestamp }}</p>
+                <p><strong>Open:</strong> {{ stock.open }}</p>
+                <p><strong>High:</strong> {{ stock.high }}</p>
+                <p><strong>Low:</strong> {{ stock.low }}</p>
+                <p><strong>Close:</strong> {{ stock.close }}</p>
+                <p><strong>Volume:</strong> {{ stock.volume }}</p>
             </div>
         {% endfor %}
     </section>
