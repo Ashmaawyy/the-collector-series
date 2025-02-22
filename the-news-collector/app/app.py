@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
-db = client["local"]
-news_collection = db["headlines"]
+db = client["the-news-collector"]
+news_collection = db["news-collection"]
 
 def fetch_and_store_news():
     api_url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=1f44150911944ca9bb27320681169afc"

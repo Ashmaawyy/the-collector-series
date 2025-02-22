@@ -1,7 +1,15 @@
 from flask import Flask, render_template, request, jsonify
-from scholarly import scholarly
+from pymongo import MongoClient
+from apscheduler.schedulers.background import BackgroundScheduler
+import requests
+import datetime
 
 app = Flask(__name__)
+
+# MongoDB Setup
+client = MongoClient("mongodb://localhost:27017/")
+db = client["the-scientefic-collector"]
+news_collection = db["scientefic-collection"]
 
 def fetch_scholar_articles(query, start=0, num_results=10):
     articles = []
