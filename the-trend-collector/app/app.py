@@ -4,6 +4,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import datetime
 import tweepy
+import praw  # Reddit API
+from googleapiclient.discovery import build  # YouTube API
 
 app = Flask(__name__)
 
@@ -19,25 +21,78 @@ access_token = "YOUR_ACCESS_TOKEN"
 access_token_secret = "YOUR_ACCESS_TOKEN_SECRET"
 
 auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
-api = tweepy.API(auth)
+twitter_api = tweepy.API(auth)
 
-def fetch_and_store_trends():
+# Reddit API Setup
+reddit = praw.Reddit(client_id='YOUR_REDDIT_CLIENT_ID',
+                     client_secret='YOUR_REDDIT_CLIENT_SECRET',
+                     user_agent='YOUR_USER_AGENT')
+
+# YouTube API Setup
+youtube_api_key = "YOUR_YOUTUBE_API_KEY"
+youtube = build('youtube', 'v3', developerKey=youtube_api_key)
+
+def fetch_and_store_twitter_trends():
     try:
-        trends = api.get_place_trends(id=1)  # WOEID 1 is for worldwide trends
+        trends = twitter_api.get_place_trends(id=1)  # WOEID 1 is for worldwide trends
         if trends:
             for trend in trends[0]["trends"]:
-                if not trends_collection.find_one({"name": trend["name"]}):
+                if not trends_collection.find_one({"name": trend["name"], "source": "Twitter"}):
                     trends_collection.insert_one({
                         "name": trend["name"],
                         "url": trend["url"],
                         "tweet_volume": trend.get("tweet_volume", "N/A"),
-                        "timestamp": datetime.datetime.now()
+                        "timestamp": datetime.datetime.now(),
+                        "source": "Twitter"
                     })
-            print("Trends Updated!")
+            print("Twitter Trends Updated!")
         else:
-            print("No trends found.")
+            print("No Twitter trends found.")
     except Exception as e:
-        print(f"Failed to fetch trends: {e}")
+        print(f"Failed to fetch Twitter trends: {e}")
+
+def fetch_and_store_reddit_trends():
+    try:
+        subreddit = reddit.subreddit('all')
+        for submission in subreddit.hot(limit=10):
+            if not trends_collection.find_one({"name": submission.title, "source": "Reddit"}):
+                trends_collection.insert_one({
+                    "name": submission.title,
+                    "url": submission.url,
+                    "tweet_volume": submission.score,
+                    "timestamp": datetime.datetime.now(),
+                    "source": "Reddit"
+                })
+        print("Reddit Trends Updated!")
+    except Exception as e:
+        print(f"Failed to fetch Reddit trends: {e}")
+
+def fetch_and_store_youtube_trends():
+    try:
+        request = youtube.videos().list(
+            part="snippet,contentDetails,statistics",
+            chart="mostPopular",
+            regionCode="US",
+            maxResults=10
+        )
+        response = request.execute()
+        for item in response['items']:
+            if not trends_collection.find_one({"name": item['snippet']['title'], "source": "YouTube"}):
+                trends_collection.insert_one({
+                    "name": item['snippet']['title'],
+                    "url": f"https://www.youtube.com/watch?v={item['id']}",
+                    "tweet_volume": item['statistics']['viewCount'],
+                    "timestamp": datetime.datetime.now(),
+                    "source": "YouTube"
+                })
+        print("YouTube Trends Updated!")
+    except Exception as e:
+        print(f"Failed to fetch YouTube trends: {e}")
+
+def fetch_and_store_trends():
+    fetch_and_store_twitter_trends()
+    fetch_and_store_reddit_trends()
+    fetch_and_store_youtube_trends()
 
 # Scheduler
 scheduler = BackgroundScheduler()
@@ -69,7 +124,8 @@ def load_latest_trends():
             "name": item["name"],
             "url": item["url"],
             "tweet_volume": item.get("tweet_volume", "N/A"),
-            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S"),
+            "source": item["source"]
         } for item in latest_trends
     ]
 
@@ -87,7 +143,8 @@ def load_more_trends():
             "name": item["name"],
             "url": item["url"],
             "tweet_volume": item.get("tweet_volume", "N/A"),
-            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S"),
+            "source": item["source"]
         } for item in trends
     ]
 
@@ -103,7 +160,8 @@ def search_trends():
             "name": item["name"],
             "url": item["url"],
             "tweet_volume": item.get("tweet_volume", "N/A"),
-            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": item["timestamp"].strftime("%Y-%m-%d %H:%M:%S"),
+            "source": item["source"]
         } for item in trends
     ]
 
