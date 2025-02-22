@@ -2,44 +2,39 @@ from config import COLLECTION_NAME
 from app import db
 from datetime import datetime
 
-news_collection = db[COLLECTION_NAME]
+trends_collection = db[COLLECTION_NAME]
 
-def store_headlines(source, articles):
+def store_trends(source, trends):
     """
-    Stores scraped news articles in MongoDB with the new data structure.
+    Stores scraped social media trends in MongoDB with the new data structure.
     """
-    formatted_articles = []
+    formatted_trends = []
 
-    for article in articles:
+    for trend in trends:
         data = {
-            "name": source,  # News source name (e.g., BBC, CNN)
-            "headline": article.get("headline", "N/A"),
-            "article_url": article.get("article_url", "N/A"),
-            "publication_date": article.get("publication_date", datetime.utcnow()),  # Default to now if missing
-            "author": article.get("author", "N/A"),
-            "summary": article.get("summary", "N/A"),
-            "category": article.get("category", "N/A"),
-            "image_url": article.get("image_url", "N/A"),
-            "keywords": article.get("keywords", "").split(", ") if "keywords" in article else []
+            "name": trend.get("name", "N/A"),
+            "url": trend.get("url", "N/A"),
+            "tweet_volume": trend.get("tweet_volume", "N/A"),
+            "timestamp": trend.get("timestamp", datetime.utcnow()),  # Default to now if missing
+            "source": source  # Source of the trend (e.g., Twitter, Reddit, YouTube)
         }
-        formatted_articles.append(data)
+        formatted_trends.append(data)
 
-    if formatted_articles:
-        news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles from {source} into MongoDB.")
+    if formatted_trends:
+        trends_collection.insert_many(formatted_trends)
+        print(f"✅ Successfully inserted {len(formatted_trends)} trends from {source} into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert for {source}.")
+        print(f"⚠ No valid trends to insert for {source}.")
 
-
-def get_latest_headlines(limit=5):
+def get_latest_trends(limit=50):
     """
-    Fetches the latest news articles from MongoDB.
-    Returns a list of structured articles sorted by publication date.
+    Fetches the latest social media trends from MongoDB.
+    Returns a list of structured trends sorted by timestamp.
     """
-    latest_news = list(
-        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publication_date", -1)  # Sort by latest publication date
+    latest_trends = list(
+        trends_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
+        .sort("timestamp", -1)  # Sort by latest timestamp
         .limit(limit)  # Limit results
     )
 
-    return latest_news
+    return latest_trends
