@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -39,23 +38,22 @@ document.addEventListener("DOMContentLoaded", function () {
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
-            fetch(`/search_news?q=${query}`)
+            fetch(`/search_trends?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
-                    const newsContainer = document.getElementById("news-container");
-                    newsContainer.innerHTML = "";
+                    const trendsContainer = document.getElementById("trends-container");
+                    trendsContainer.innerHTML = "";
 
-                    data.news.forEach(article => {
-                        const newsCard = document.createElement("div");
-                        newsCard.classList.add("news-card", "small-news");
-                        newsCard.innerHTML = `
-                            <h2>${article.title}</h2>
-                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                            <p><strong>Published:</strong> ${article.publishedAt}</p>
-                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                    data.trends.forEach(trend => {
+                        const trendCard = document.createElement("div");
+                        trendCard.classList.add("trend-card", "small-trend");
+                        trendCard.innerHTML = `
+                            <h2>${trend.name}</h2>
+                            <p><strong>Tweet Volume:</strong> ${trend.tweet_volume}</p>
+                            <p><strong>Timestamp:</strong> ${trend.timestamp}</p>
+                            <a href="${trend.url}" target="_blank">View Trend</a>
                         `;
-                        newsContainer.appendChild(newsCard);
+                        trendsContainer.appendChild(trendCard);
                     });
                 });
         }
@@ -70,30 +68,29 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
-    async function loadMoreNews() {
+    async function loadMoreTrends() {
         if (loading) return;
         loading = true;
 
-        const response = await fetch(`/load_more_news?page=${page}`);
+        const response = await fetch(`/load_more_trends?page=${page}`);
         const data = await response.json();
 
-        if (data.news.length > 0) {
-            const newsContainer = document.getElementById("news-container");
-            data.news.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card", "small-news");
-                newsCard.style.opacity = "0";
+        if (data.trends.length > 0) {
+            const trendsContainer = document.getElementById("trends-container");
+            data.trends.forEach(trend => {
+                const trendCard = document.createElement("div");
+                trendCard.classList.add("trend-card", "small-trend");
+                trendCard.style.opacity = "0";
 
-                newsCard.innerHTML = `
-                    <h2>${article.title}</h2>
-                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                    <p><strong>Published:</strong> ${article.publishedAt}</p>
-                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                trendCard.innerHTML = `
+                    <h2>${trend.name}</h2>
+                    <p><strong>Tweet Volume:</strong> ${trend.tweet_volume}</p>
+                    <p><strong>Timestamp:</strong> ${trend.timestamp}</p>
+                    <a href="${trend.url}" target="_blank">View Trend</a>
                 `;
 
-                newsContainer.appendChild(newsCard);
-                setTimeout(() => newsCard.style.opacity = "1", 200);
+                trendsContainer.appendChild(trendCard);
+                setTimeout(() => trendCard.style.opacity = "1", 200);
             });
 
             page++;
@@ -103,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-            loadMoreNews();
+            loadMoreTrends();
         }
 
         if (window.scrollY > 300) {

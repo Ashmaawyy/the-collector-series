@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The News Collector</title>
+    <title>The Trend Collector</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
@@ -22,18 +22,17 @@
             <span class="icon moon">🌙</span>
         </div>
         <div class="search-container">
-            <input type="text" id="search-input" class="search-box" placeholder="Search news...">
+            <input type="text" id="search-input" class="search-box" placeholder="Search trends...">
         </div>
     </header>
     
-    <section id="news-container">
-        {% for article in news %}
-            <div class="news-card small-news">
-                <h2>{{ article.title }}</h2>
-                <p><strong>Source:</strong> {{ article.source }} | <strong>Author:</strong> {{ article.author }}</p>
-                <p><strong>Published:</strong> {{ article.publishedAt }}</p>
-                <img src="{{ article.urlToImage }}" alt="News Image" class="news-image small-news-image">
-                <p><a href="{{ article.url }}" target="_blank">Read Full Article</a></p>
+    <section id="trends-container">
+        {% for trend in trends %}
+            <div class="trend-card small-trend">
+                <h2>{{ trend.name }}</h2>
+                <p><strong>Tweet Volume:</strong> {{ trend.tweet_volume }}</p>
+                <p><strong>Timestamp:</strong> {{ trend.timestamp }}</p>
+                <a href="{{ trend.url }}" target="_blank">View Trend</a>
             </div>
         {% endfor %}
     </section>
