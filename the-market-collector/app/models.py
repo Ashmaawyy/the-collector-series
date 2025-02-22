@@ -1,45 +1,44 @@
-from config import COLLECTION_NAME
-from app import db
+from pymongo import MongoClient
 from datetime import datetime
 
-news_collection = db[COLLECTION_NAME]
+# MongoDB Setup
+client = MongoClient("mongodb://localhost:27017/")
+db = client["the-market-collector"]
+stocks_collection = db["market-stocks"]
 
-def store_headlines(source, articles):
+def store_stocks(stocks):
     """
-    Stores scraped news articles in MongoDB with the new data structure.
+    Stores stock market data in MongoDB with the new data structure.
     """
-    formatted_articles = []
+    formatted_stocks = []
 
-    for article in articles:
+    for stock in stocks:
         data = {
-            "name": source,  # News source name (e.g., BBC, CNN)
-            "headline": article.get("headline", "N/A"),
-            "article_url": article.get("article_url", "N/A"),
-            "publication_date": article.get("publication_date", datetime.utcnow()),  # Default to now if missing
-            "author": article.get("author", "N/A"),
-            "summary": article.get("summary", "N/A"),
-            "category": article.get("category", "N/A"),
-            "image_url": article.get("image_url", "N/A"),
-            "keywords": article.get("keywords", "").split(", ") if "keywords" in article else []
+            "symbol": stock.get("symbol", "N/A"),
+            "timestamp": stock.get("timestamp", datetime.utcnow()),  # Default to now if missing
+            "open": stock.get("open", "N/A"),
+            "high": stock.get("high", "N/A"),
+            "low": stock.get("low", "N/A"),
+            "close": stock.get("close", "N/A"),
+            "volume": stock.get("volume", "N/A")
         }
-        formatted_articles.append(data)
+        formatted_stocks.append(data)
 
-    if formatted_articles:
-        news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles from {source} into MongoDB.")
+    if formatted_stocks:
+        stocks_collection.insert_many(formatted_stocks)
+        print(f"✅ Successfully inserted {len(formatted_stocks)} stocks into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert for {source}.")
+        print(f"⚠ No valid stocks to insert.")
 
-
-def get_latest_headlines(limit=5):
+def get_latest_stocks(limit=50):
     """
-    Fetches the latest news articles from MongoDB.
-    Returns a list of structured articles sorted by publication date.
+    Fetches the latest stock market data from MongoDB.
+    Returns a list of structured stocks sorted by timestamp.
     """
-    latest_news = list(
-        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publication_date", -1)  # Sort by latest publication date
+    latest_stocks = list(
+        stocks_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
+        .sort("timestamp", -1)  # Sort by latest timestamp
         .limit(limit)  # Limit results
     )
 
-    return latest_news
+    return latest_stocks
