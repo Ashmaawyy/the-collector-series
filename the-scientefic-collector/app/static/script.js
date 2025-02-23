@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p><strong>Author:</strong> ${paper.author}</p>
                     <p><strong>Published:</strong> ${paper.publishedAt}</p>
                     <p><strong>Journal:</strong> ${paper.journal}</p>
+                    <a href=${paper.url } target="_blank">Read Full Paper</a>
                 `;
 
                 papersContainer.appendChild(paperCard);
