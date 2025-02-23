@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_temp_articles, "interval", minutes=15)
-scheduler.add_job(store_temp_articles, "interval", minutes=20)
+scheduler.add_job(fetch_and_store_temp_articles, "interval", minutes=10)
+scheduler.add_job(store_temp_articles, "interval", minutes=11)
 scheduler.start()
 
 @app.route('/')

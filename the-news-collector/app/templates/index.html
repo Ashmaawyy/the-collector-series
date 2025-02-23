@@ -26,14 +26,14 @@
         </div>
     </header>
     
-    <section id="articles-container">
+    <section id="news-container">
         {% for article in articles %}
-            <div class="article-card small-article">
+            <div class="news-card small-news">
                 <h2>{{ article.headline }}</h2>
                 <p><strong>Author:</strong> {{ article.author }}</p>
                 <p><strong>Published At:</strong> {{ article.publishedAt }}</p>
                 <p>{{ article.summary }}</p>
-                <a href="{{ article.url }}" target="_blank">Read Full Article</a>
+                <a href="{{ article.url }}" target="_blank">Read Full News</a>
             </div>
         {% endfor %}
     </section>
