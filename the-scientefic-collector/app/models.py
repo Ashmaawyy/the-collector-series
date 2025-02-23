@@ -16,11 +16,11 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="computer science AND machine learning AND medical"):
+def fetch_papers():
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = f"http://api.springernature.com/metadata/json?q={query}&api_key={SPRINGER_API_KEY}"
+    url = "https://api.springernature.com/openaccess/v1/articles?api_key=SPRINGER_API_KEY"
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json",
