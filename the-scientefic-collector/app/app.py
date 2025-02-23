@@ -6,11 +6,6 @@ import datetime
 
 app = Flask(__name__)
 
-# MongoDB Setup
-client = MongoClient("mongodb://localhost:27017/")
-db = client["the-scientefic-collector"]
-papers_collection = db["scientefic-collection"]
-
 # Scheduler
 scheduler = BackgroundScheduler()
 scheduler.add_job(fetch_and_store_temp_papers, "interval", minutes=10)

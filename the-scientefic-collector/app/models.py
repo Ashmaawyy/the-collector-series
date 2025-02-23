@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from datetime import datetime
-from scholarly import scholarly
+from scholarly import scholarly, ProxyGenerator, MaxTriesExceededException
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -8,23 +8,35 @@ db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-papers"]
 temp_papers_collection = db["temp-papers"]
 
+# Configure proxy generator
+pg = ProxyGenerator()
+success = pg.FreeProxies()  # Use free proxies
+if success:
+    scholarly.use_proxy(pg)
+else:
+    print("Failed to set up proxy generator.")
+
 def fetch_papers(query="scientific papers"):
     """
     Fetches scientific papers using the scholarly library.
     """
-    search_query = scholarly.search_pubs(query)
-    papers = []
-    for paper in search_query:
-        paper_data = scholarly.fill(paper)
-        papers.append({
-            "title": paper_data["bib"]["title"],
-            "author": paper_data["bib"].get("author", "N/A"),
-            "publishedAt": paper_data["bib"].get("pub_year", datetime.utcnow().year),
-            "url": paper_data.get("eprint_url", ""),
-            "abstract": paper_data["bib"].get("abstract", ""),
-            "journal": paper_data["bib"].get("journal", "N/A")
-        })
-    return papers
+    try:
+        search_query = scholarly.search_pubs(query)
+        papers = []
+        for paper in search_query:
+            paper_data = scholarly.fill(paper)
+            papers.append({
+                "title": paper_data["bib"]["title"],
+                "author": paper_data["bib"].get("author", "N/A"),
+                "publishedAt": paper_data["bib"].get("pub_year", datetime.utcnow().year),
+                "url": paper_data.get("eprint_url", ""),
+                "abstract": paper_data["bib"].get("abstract", ""),
+                "journal": paper_data["bib"].get("journal", "N/A")
+            })
+        return papers
+    except MaxTriesExceededException:
+        print("Max tries exceeded. Could not fetch papers from Google Scholar.")
+        return []
 
 def store_papers(papers):
     """
@@ -47,8 +59,9 @@ def fetch_and_store_temp_papers():
     Fetches papers and stores them in a temporary collection.
     """
     papers = fetch_papers()
-    temp_papers_collection.insert_many(papers)
-    print(f"✅ Successfully fetched and stored {len(papers)} papers in the temporary collection.")
+    if papers:
+        temp_papers_collection.insert_many(papers)
+        print(f"✅ Successfully fetched and stored {len(papers)} papers in the temporary collection.")
 
 def store_temp_papers():
     """
