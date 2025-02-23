@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
 import requests
-import feedparser
+import xml.etree.ElementTree as ET
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -9,28 +9,29 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="science"):
+def fetch_papers(query="cs"):
     """
-    Fetches scientific articles from Medium using RSS feeds.
+    Fetches scientific articles from arXiv using their API.
     """
-    url = f"https://medium.com/feed/tag/{query}"
+    url = f"http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=10"
     response = requests.get(url)
     
     if response.status_code == 200:
-        feed = feedparser.parse(response.content)
+        root = ET.fromstring(response.content)
         papers = []
-        for entry in feed.entries:
-            papers.append({
-                "title": entry.title,
-                "author": entry.author if "author" in entry else "N/A",
-                "publishedAt": entry.published if "published" in entry else datetime.utcnow().isoformat(),
-                "url": entry.link,
-                "abstract": entry.summary if "summary" in entry else "N/A",
-                "journal": "Medium"
-            })
+        for entry in root.findall("{http://www.w3.org/2005/Atom}entry"):
+            paper = {
+                "title": entry.find("{http://www.w3.org/2005/Atom}title").text,
+                "author": ", ".join([author.find("{http://www.w3.org/2005/Atom}name").text for author in entry.findall("{http://www.w3.org/2005/Atom}author")]),
+                "publishedAt": entry.find("{http://www.w3.org/2005/Atom}published").text,
+                "url": entry.find("{http://www.w3.org/2005/Atom}id").text,
+                "abstract": entry.find("{http://www.w3.org/2005/Atom}summary").text,
+                "journal": "arXiv"
+            }
+            papers.append(paper)
         return papers
     else:
-        print(f"Failed to fetch articles from Medium. Status code: {response.status_code}")
+        print(f"Failed to fetch articles from arXiv. Status code: {response.status_code}")
         return []
 
 def store_papers(papers):
