@@ -132,4 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location.reload();
         }
     });
+
+    // Initial load
+    loadMorePapers();
 });

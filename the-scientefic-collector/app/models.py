@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
-from scholarly import scholarly, MaxTriesExceededException
-import random
+import requests
+import feedparser
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -9,48 +9,33 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-# List of proxies
-proxies = [
-    "http://123.456.789.101:8080",
-    "http://234.567.890.102:8080",
-    "http://345.678.901.103:8080",
-    "http://456.789.012.104:8080",
-    "http://567.890.123.105:8080",
-]
-
-def set_random_proxy():
+def fetch_papers(query="science"):
     """
-    Sets a random proxy from the list of proxies.
+    Fetches scientific articles from Medium using RSS feeds.
     """
-    proxy = random.choice(proxies)
-    scholarly.use_proxy(proxy)
-
-def fetch_papers(query="scientific papers"):
-    """
-    Fetches scientific papers using the scholarly library.
-    """
-    set_random_proxy()
-    try:
-        search_query = scholarly.search_pubs(query)
+    url = f"https://medium.com/feed/tag/{query}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        feed = feedparser.parse(response.content)
         papers = []
-        for paper in search_query:
-            paper_data = scholarly.fill(paper)
+        for entry in feed.entries:
             papers.append({
-                "title": paper_data["bib"]["title"],
-                "author": paper_data["bib"].get("author", "N/A"),
-                "publishedAt": paper_data["bib"].get("pub_year", datetime.utcnow().year),
-                "url": paper_data.get("eprint_url", ""),
-                "abstract": paper_data["bib"].get("abstract", ""),
-                "journal": paper_data["bib"].get("journal", "N/A")
+                "title": entry.title,
+                "author": entry.author if "author" in entry else "N/A",
+                "publishedAt": entry.published if "published" in entry else datetime.utcnow().isoformat(),
+                "url": entry.link,
+                "abstract": entry.summary if "summary" in entry else "N/A",
+                "journal": "Medium"
             })
         return papers
-    except MaxTriesExceededException:
-        print("Max tries exceeded. Could not fetch papers from Google Scholar.")
+    else:
+        print(f"Failed to fetch articles from Medium. Status code: {response.status_code}")
         return []
 
 def store_papers(papers):
     """
-    Stores scraped scientific papers in MongoDB with the new data structure.
+    Stores scraped scientific articles in MongoDB with the new data structure.
     """
     formatted_papers = []
 

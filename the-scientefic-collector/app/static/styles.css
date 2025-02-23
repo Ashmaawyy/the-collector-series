@@ -71,6 +71,24 @@ header {
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.paper-card h2 {
+    margin-top: 0;
+}
+
+.paper-card p {
+    margin: 0.5rem 0;
+}
+
+.paper-card a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.paper-card a:hover {
+    text-decoration: underline;
+}
+
 .pagination a {
     padding: 12px 18px;
     border-radius: 20px;
