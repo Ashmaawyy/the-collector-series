@@ -96,6 +96,10 @@ header {
     margin-bottom: 15px;
 }
 
+.paper-abstract {
+    margin-bottom: 15px;
+}
+
 .pagination a {
     padding: 12px 18px;
     border-radius: 20px;

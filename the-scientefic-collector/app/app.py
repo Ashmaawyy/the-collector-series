@@ -3,13 +3,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from models import fetch_and_store_temp_papers, store_temp_papers, papers_collection
 from pymongo import MongoClient
 import datetime
+import logging
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_temp_papers, "interval", minutes=10)
-scheduler.add_job(store_temp_papers, "interval", minutes=15)
+scheduler.add_job(fetch_and_store_temp_papers, "interval", minutes=15)
+scheduler.add_job(store_temp_papers, "interval", minutes=20)
 scheduler.start()
 
 @app.route('/')

@@ -63,6 +63,13 @@ def store_temp_papers():
     Stores papers from the temporary collection into the main collection.
     """
     temp_papers = list(temp_papers_collection.find())
-    store_papers(temp_papers)
+    unique_papers = [paper for paper in temp_papers if not papers_collection.find_one({"title": paper["title"]})]
+    
+    if unique_papers:
+        papers_collection.insert_many(unique_papers)
+        print(f"✅ Successfully moved {len(unique_papers)} unique papers from the temporary collection to the main collection.")
+    else:
+        print(f"⚠ No unique papers to move.")
+
     temp_papers_collection.delete_many({})
-    print(f"✅ Successfully moved {len(temp_papers)} papers from the temporary collection to the main collection.")
+    print(f"✅ Cleared the temporary collection.")
