@@ -20,7 +20,7 @@ def fetch_papers():
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = "https://api.springernature.com/openaccess/v1/articles?api_key=SPRINGER_API_KEY"
+    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}"
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json",
