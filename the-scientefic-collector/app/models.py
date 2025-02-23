@@ -1,7 +1,14 @@
 from pymongo import MongoClient
 from datetime import datetime
 import requests
-import xml.etree.ElementTree as ET
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from keys.env
+load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
+
+# Get the API key from the environment variable
+SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -9,29 +16,29 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="cs"):
+def fetch_papers(query="computer science"):
     """
-    Fetches scientific articles from arXiv using their API.
+    Fetches scientific articles from Springer using their API.
     """
-    url = f"http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=10"
+    url = f"http://api.springernature.com/metadata/json?q={query}&api_key={SPRINGER_API_KEY}"
     response = requests.get(url)
     
     if response.status_code == 200:
-        root = ET.fromstring(response.content)
+        data = response.json()
         papers = []
-        for entry in root.findall("{http://www.w3.org/2005/Atom}entry"):
+        for record in data['records']:
             paper = {
-                "title": entry.find("{http://www.w3.org/2005/Atom}title").text,
-                "author": ", ".join([author.find("{http://www.w3.org/2005/Atom}name").text for author in entry.findall("{http://www.w3.org/2005/Atom}author")]),
-                "publishedAt": entry.find("{http://www.w3.org/2005/Atom}published").text,
-                "url": entry.find("{http://www.w3.org/2005/Atom}id").text,
-                "abstract": entry.find("{http://www.w3.org/2005/Atom}summary").text,
-                "journal": "arXiv"
+                "title": record.get("title", "No title"),
+                "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
+                "publishedAt": record.get("publicationDate", "No date"),
+                "url": record.get("url", [{"value": "No URL"}])[0]["value"],
+                "abstract": record.get("abstract", "No abstract"),
+                "journal": record.get("publicationName", "Springer")
             }
             papers.append(paper)
         return papers
     else:
-        print(f"Failed to fetch articles from arXiv. Status code: {response.status_code}")
+        print(f"Failed to fetch articles from Springer. Status code: {response.status_code}")
         return []
 
 def store_papers(papers):
