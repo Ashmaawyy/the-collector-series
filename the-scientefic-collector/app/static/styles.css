@@ -90,8 +90,8 @@ header {
 }
 
 .paper-image {
-    width: 100%;
-    height: auto;
+    width: 50%;
+    height: 50%;
     border-radius: 10px;
     margin-bottom: 15px;
 }
@@ -218,7 +218,7 @@ input:checked + .slider:before {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 30px;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
 }
