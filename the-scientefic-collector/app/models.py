@@ -5,9 +5,9 @@ import random
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
-db = client["the-scientefic-collector"]
-papers_collection = db["scientefic-papers"]
-temp_papers_collection = db["temp-papers"]
+db = client["the-scientific-collector"]
+papers_collection = db["scientific-collection"]
+temp_papers_collection = db["temp-papers-collection"]
 
 # List of proxies
 proxies = [
