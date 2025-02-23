@@ -20,7 +20,7 @@ def fetch_papers(query="computer science"):
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = f"http://api.springernature.com/metadata/json?q={query}&api_key={SPRINGER_API_KEY}"
+    url = f"http://api.springernature.com/metadata/json?api_key={SPRINGER_API_KEY}"
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -38,7 +38,7 @@ def fetch_papers(query="computer science"):
             papers.append(paper)
         return papers
     else:
-        print(f"Failed to fetch articles from Springer. Status code: {response.status_code}")
+        print(f"❌️ Failed to fetch articles from Springer. Status code: {response.status_code}")
         return []
 
 def store_papers(papers):
