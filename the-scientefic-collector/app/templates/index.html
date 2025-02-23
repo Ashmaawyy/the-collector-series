@@ -29,11 +29,13 @@
     <section id="papers-container">
         {% for paper in papers %}
             <div class="paper-card small-paper">
+                {% if paper.image_url %}
+                    <img src="{{ paper.image_url }}" alt="{{ paper.title }}" class="paper-image">
+                {% endif %}
                 <h2>{{ paper.title }}</h2>
                 <p><strong>Author:</strong> {{ paper.author }}</p>
                 <p><strong>Published At:</strong> {{ paper.publishedAt }}</p>
                 <p><strong>Journal:</strong> {{ paper.journal }}</p>
-                <div class="paper-abstract">{{ paper.abstract | safe }}</div>
             </div>
         {% endfor %}
     </section>
