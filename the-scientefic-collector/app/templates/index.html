@@ -38,14 +38,6 @@
             </div>
         {% endfor %}
     </section>
-    <div class="pagination">
-        {% if page > 1 %}
-            <a href="/?page={{ page - 1 }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}">Previous</a>
-        {% endif %}
-        {% if page < total_pages %}
-            <a href="/?page={{ page + 1 }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}">Next</a>
-        {% endif %}
-    </div>
     <button id="back-to-top" class="back-to-top">⏫</button>
 </body>
 </html>
