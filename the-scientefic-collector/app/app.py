@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_and_store_temp_papers, store_temp_papers
+from models import fetch_and_store_temp_papers, store_temp_papers, papers_collection
 from pymongo import MongoClient
 import datetime
 
