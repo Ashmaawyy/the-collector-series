@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         const paperCard = document.createElement("div");
                         paperCard.classList.add("paper-card", "small-paper");
                         paperCard.innerHTML = `
-                            ${paper.image_url ? `<img src="${paper.image_url}" alt="${paper.title}" class="paper-image">` : ""}
                             <h2>${paper.title}</h2>
                             <p><strong>Author:</strong> ${paper.author}</p>
                             <p><strong>Published:</strong> ${paper.publishedAt}</p>
@@ -90,7 +89,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p><strong>Author:</strong> ${paper.author}</p>
                     <p><strong>Published:</strong> ${paper.publishedAt}</p>
                     <p><strong>Journal:</strong> ${paper.journal}</p>
-                    <a href=${paper.url } target="_blank">Read Full Paper</a>
+                    <div class="paper-abstract">${paper.abstract}</div>
+                    <a href="${paper.url}" target="_blank">Read Full Paper</a>
                 `;
 
                 papersContainer.appendChild(paperCard);
