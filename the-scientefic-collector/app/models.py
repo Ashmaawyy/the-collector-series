@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
-from scholarly import scholarly, ProxyGenerator, MaxTriesExceededException
+from scholarly import scholarly, MaxTriesExceededException
+import random
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -8,18 +9,27 @@ db = client["the-scientefic-collector"]
 papers_collection = db["scientefic-papers"]
 temp_papers_collection = db["temp-papers"]
 
-# Configure proxy generator
-pg = ProxyGenerator()
-success = pg.FreeProxies()  # Use free proxies
-if success:
-    scholarly.use_proxy(pg)
-else:
-    print("Failed to set up proxy generator.")
+# List of proxies
+proxies = [
+    "http://123.456.789.101:8080",
+    "http://234.567.890.102:8080",
+    "http://345.678.901.103:8080",
+    "http://456.789.012.104:8080",
+    "http://567.890.123.105:8080",
+]
+
+def set_random_proxy():
+    """
+    Sets a random proxy from the list of proxies.
+    """
+    proxy = random.choice(proxies)
+    scholarly.use_proxy(proxy)
 
 def fetch_papers(query="scientific papers"):
     """
     Fetches scientific papers using the scholarly library.
     """
+    set_random_proxy()
     try:
         search_query = scholarly.search_pubs(query)
         papers = []
