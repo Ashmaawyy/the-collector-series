@@ -16,12 +16,17 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="computer science"):
+def fetch_papers():
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = f"http://api.springernature.com/metadata/json?api_key={SPRINGER_API_KEY}"
-    response = requests.get(url)
+    # Example of combining multiple query parameters using AND
+    query = "computer science AND machine learning AND medical"
+    url = f"http://api.springernature.com/metadata/json?q={query}&api_key={SPRINGER_API_KEY}"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
     
     if response.status_code == 200:
         data = response.json()
