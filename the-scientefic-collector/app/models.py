@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables from keys.env
-load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
+load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.inv')
 
 # Get the API key from the environment variable
 SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
@@ -26,7 +26,11 @@ def fetch_papers(query="neuroscience"):
         "Accept": "application/json",
         "Content-Type": "application/json"
     }
-    response = requests.get(url, headers=headers)
+    proxies = {
+        "http": "http://51.158.68.68:8811",  # Example public proxy server
+        "https": "http://51.158.68.68:8811"  # Example public proxy server
+    }
+    response = requests.get(url, headers=headers, proxies=proxies)
     
     if response.status_code == 200:
         data = response.json()
