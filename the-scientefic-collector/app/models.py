@@ -16,7 +16,7 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="01/01/2025"):
+def fetch_papers(query="01/01/2024 TO 01/01/2025"):
     """
     Fetches scientific articles from Springer using their API.
     """
