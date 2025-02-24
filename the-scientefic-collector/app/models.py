@@ -16,11 +16,11 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers():
+def fetch_papers(query="neuroscience"):
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}"
+    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=keyword:{query}"
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json",
