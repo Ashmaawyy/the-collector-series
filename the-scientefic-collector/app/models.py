@@ -27,7 +27,7 @@ def fetch_papers(days=7, max_results=100):
     start_date = end_date - timedelta(days=days)
 
     while len(papers) < max_results:
-        url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedatefrom:{start_date.strftime('%Y-%m-%d')}&onlinedateto:{end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
+        url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{start_date.strftime('%Y-%m-%d')} TO {end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
         headers = {
             "User-Agent": "Mozilla/5.0",
             "Accept": "application/json",
