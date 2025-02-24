@@ -9,10 +9,20 @@ app = Flask(__name__)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
+fetched_articles = []
+
+def fetch_articles_job():
+    global fetched_articles
+    fetched_articles = fetch_articles()
+
+def store_articles_job():
+    global fetched_articles
+    store_articles(fetched_articles)
+
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_temp_articles, "interval", minutes=5)
-scheduler.add_job(store_temp_articles, "interval", minutes=6)
+scheduler.add_job(fetch_articles_job, "interval", minutes=5)
+scheduler.add_job(store_articles_job, "interval", minutes=6)
 scheduler.start()
 
 @app.route('/')

@@ -35,7 +35,7 @@ def store_articles(articles):
     """
     Stores news articles in MongoDB with the new data structure.
     """
-    formatted_articles = []
+    formatted_articles = {}
 
     for article in articles:
         if not news_collection.find_one({"title": article["title"]}):
@@ -54,31 +54,6 @@ def store_articles(articles):
         print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
         print(f"⚠ No valid articles to insert.")
-
-def fetch_and_store_temp_articles():
-    """
-    Fetches articles and stores them in a temporary collection.
-    """
-    articles = fetch_articles()
-    if articles:
-        temp_news_collection.insert_many(articles)
-        print(f"✅ Successfully fetched and stored {len(articles)} articles in the temporary collection.")
-
-def store_temp_articles():
-    """
-    Stores articles from the temporary collection into the main collection.
-    """
-    temp_articles = list(temp_news_collection.find())
-    unique_articles = [article for article in temp_articles if not news_collection.find_one({"title": article["title"]})]
-    
-    if unique_articles:
-        news_collection.insert_many(unique_articles)
-        print(f"✅ Successfully moved {len(unique_articles)} unique articles from the temporary collection to the main collection.")
-    else:
-        print(f"⚠ No unique articles to move.")
-
-    temp_news_collection.delete_many({})
-    print(f"✅ Cleared the temporary collection.")
 
 def get_latest_headlines(limit=50):
     """
