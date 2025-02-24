@@ -26,11 +26,7 @@ def fetch_papers(query="neuroscience"):
         "Accept": "application/json",
         "Content-Type": "application/json"
     }
-    proxies = {
-        "http": "http://51.158.68.68:8811",  # Example public proxy server
-        "https": "http://51.158.68.68:8811"  # Example public proxy server
-    }
-    response = requests.get(url, headers=headers, proxies=proxies)
+    response = requests.get(url, headers=headers)
     
     if response.status_code == 200:
         data = response.json()
