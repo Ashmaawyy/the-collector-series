@@ -16,7 +16,7 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="neuroscience AND computer science AND medical AND AI AND mathematics AND physics"):
+def fetch_papers(query="neuroscience OR computer science OR medical AND AI OR mathematics OR physics"):
     """
     Fetches scientific articles from Springer using their API.
     """
