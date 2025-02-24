@@ -1,11 +1,11 @@
 from pymongo import MongoClient
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 import os
 from dotenv import load_dotenv
 
 # Load environment variables from keys.env
-load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.inv')
+load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
 
 # Get the API key from the environment variable
 SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
@@ -16,35 +16,52 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="2025 OR 2024 OR 2023 OR 2022 OR 2021 OR 2020 OR 2019 OR 2018 OR 2017 OR 2016"):
+def fetch_papers(days=7, max_results=100):
     """
-    Fetches scientific articles from Springer using their API.
+    Fetches newly published scientific articles from Springer using their API.
     """
-    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{query}"
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        data = response.json()
-        papers = []
-        for record in data['records']:
-            paper = {
-                "title": record.get("title", "No title"),
-                "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
-                "publishedAt": record.get("publicationDate", "No date"),
-                "url": record.get("url", [{"value": "No URL"}])[0]["value"],
-                "abstract": record.get("abstract", "No abstract"),
-                "journal": record.get("publicationName", "Springer")
-            }
-            papers.append(paper)
-        return papers
-    else:
-        print(f"❌️ Failed to fetch articles from Springer. Status code: {response.status_code}")
-        return []
+    papers = []
+    start = 1
+    rows = 50  # Number of results per page (adjust as needed)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+
+    while len(papers) < max_results:
+        url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=date:{start_date.strftime('%Y-%m-%d')} TO {end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
+        headers = {
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if not data['records']:
+                break  # No more records to fetch
+
+            for record in data['records']:
+                paper = {
+                    "title": record.get("title", "No title"),
+                    "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
+                    "publishedAt": record.get("publicationDate", "No date"),
+                    "url": record.get("url", [{"value": "No URL"}])[0]["value"],
+                    "abstract": {
+                        "h1": "Abstract",
+                        "p": record.get("abstract", "No abstract")
+                    },
+                    "journal": record.get("publicationName", "Springer")
+                }
+                papers.append(paper)
+                if len(papers) >= max_results:
+                    break
+
+            start += rows
+        else:
+            print(f"❌️ Failed to fetch articles from Springer. Status code: {response.status_code}")
+            break
+
+    return papers
 
 def store_papers(papers):
     """
