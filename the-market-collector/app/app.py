@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_stocks, "interval", minutes=5)
-scheduler.add_job(store_stocks, "interval", minutes=6)
+scheduler.add_job(fetch_stocks, "interval", minutes=5, next_run_time=datetime.now())
+scheduler.add_job(store_stocks, "interval", minutes=6, next_run_time=datetime.now())
 scheduler.start()
 
 @app.route('/')
