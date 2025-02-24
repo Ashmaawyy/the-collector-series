@@ -38,24 +38,23 @@ def store_articles(articles):
     formatted_articles = []
 
     for article in articles:
-        if not news_collection.find_one({"title": article["title"]}):
+        if not news_collection.find_one({"title": article["title"], "publishedAt": article["publishedAt"]}):
             formatted_articles.append({
                 "title": article["title"],
                 "source": article["source"]["name"],
                 "author": article.get("author", "N/A"),
-                "publishedAt": article.get("publishedAt", datetime.utcnow()),
+                "publishedAt": article["publishedAt"],
                 "url": article["url"],
                 "urlToImage": article.get("urlToImage", ""),
                 "category": "General"
             })
-        
-    unique_articles = [article for article in formatted_articles if not news_collection.find_one({"title": article["title"]})]
 
-    if unique_articles:
-        news_collection.insert_many(unique_articles)
-        print(f"✅ Successfully inserted {len(unique_articles)} unique articles into MongoDB.")
+    if formatted_articles:
+        news_collection.insert_many(formatted_articles)
+        print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
-        print(f"⚠ No valid and unique articles to insert.")
+        print(f"⚠ No valid articles to insert.")
+
 
 def get_latest_headlines(limit=50):
     """
