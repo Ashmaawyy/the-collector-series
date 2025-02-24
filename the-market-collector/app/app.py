@@ -7,10 +7,21 @@ from models import fetch_stocks, store_stocks
 
 app = Flask(__name__)
 
+# global variable to store fetched stock data
+fetched_stocks = []
+
+def fetch_stocks_job():
+    global fetched_stocks
+    fetched_stocks = fetch_stocks()
+
+def store_stocks_job():
+    global fetched_stocks
+    store_stocks(fetched_stocks)
+
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_stocks, "interval", minutes=5, next_run_time=datetime.now())
-scheduler.add_job(store_stocks, "interval", minutes=6, next_run_time=datetime.now())
+scheduler.add_job(fetch_stocks_job, "interval", minutes=5, next_run_time=datetime.now())
+scheduler.add_job(store_stocks_job, "interval", minutes=6, next_run_time=datetime.now())
 scheduler.start()
 
 @app.route('/')
