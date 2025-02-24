@@ -71,7 +71,7 @@ header {
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
 }
 
@@ -86,7 +86,7 @@ header {
 .paper-card a {
     color: #007bff;
     text-decoration: none;
-    margin-top: auto; /* Push the link to the bottom */
+    /*margin-top: auto; /* Push the link to the bottom */
 }
 
 .paper-card a:hover {
