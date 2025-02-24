@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables from keys.env
-load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.inv')
+load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
 
 # Get the API key from the environment variable
 NEWS_API_KEY = os.getenv('NEWS_API_KEY')
