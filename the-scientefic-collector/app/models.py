@@ -14,7 +14,6 @@ SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
-temp_papers_collection = db["temp-papers-collection"]
 
 def fetch_papers(days=60, max_results=100):
     """
@@ -77,29 +76,4 @@ def store_papers(papers):
         papers_collection.insert_many(formatted_papers)
         print(f"✅ Successfully inserted {len(formatted_papers)} papers into MongoDB.")
     else:
-        print(f"⚠ No valid papers to insert.")
-
-def fetch_and_store_temp_papers():
-    """
-    Fetches papers and stores them in a temporary collection.
-    """
-    papers = fetch_papers()
-    if papers:
-        temp_papers_collection.insert_many(papers)
-        print(f"✅ Successfully fetched and stored {len(papers)} papers in the temporary collection.")
-
-def store_temp_papers():
-    """
-    Stores papers from the temporary collection into the main collection.
-    """
-    temp_papers = list(temp_papers_collection.find())
-    unique_papers = [paper for paper in temp_papers if not papers_collection.find_one({"title": paper["title"]})]
-    
-    if unique_papers:
-        papers_collection.insert_many(unique_papers)
-        print(f"✅ Successfully moved {len(unique_papers)} unique papers from the temporary collection to the main collection.")
-    else:
-        print(f"⚠ No unique papers to move.")
-
-    temp_papers_collection.delete_many({})
-    print(f"✅ Cleared the temporary collection.")
+        print(f"⚠ No valid and unique papers to insert.")

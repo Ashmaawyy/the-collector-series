@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_and_store_temp_papers, store_temp_papers, papers_collection
+from models import fetch_papers, store_papers
 from pymongo import MongoClient
 import datetime
 import logging
@@ -10,10 +10,21 @@ app = Flask(__name__)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
+# Global variable to store fetched papers
+fetched_papers = []
+
+def fetch_papers_job():
+    global fetched_papers
+    fetched_paperss = fetch_papers()
+
+def store_papers_job():
+    global fetched_papers
+    store_papers(fetched_papers)
+
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_temp_papers, "interval", minutes=5, next_run_time=datetime.datetime.now())
-scheduler.add_job(store_temp_papers, "interval", minutes=6, next_run_time=datetime.datetime.now())
+scheduler.add_job(fetch_papers_job, "interval", minutes=5, next_run_time=datetime.datetime.now())
+scheduler.add_job(store_papers_job, "interval", minutes=6, next_run_time=datetime.datetime.now())
 scheduler.start()
 
 @app.route('/')
