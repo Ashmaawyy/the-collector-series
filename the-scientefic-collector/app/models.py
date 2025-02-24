@@ -16,11 +16,11 @@ db = client["the-scientific-collector"]
 papers_collection = db["scientific-collection"]
 temp_papers_collection = db["temp-papers-collection"]
 
-def fetch_papers(query="neuroscience OR computer science OR medical AND AI OR mathematics OR physics"):
+def fetch_papers(query="2025 OR 2024 OR 2023 OR 2022 OR 2021 OR 2020 OR 2019 OR 2018 OR 2017 OR 2016"):
     """
     Fetches scientific articles from Springer using their API.
     """
-    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=keyword:{query}"
+    url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{query}"
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json",
