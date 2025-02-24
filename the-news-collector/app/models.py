@@ -53,7 +53,7 @@ def store_articles(articles):
 
     if unique_articles:
         news_collection.insert_many(unique_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} unique articles into MongoDB.")
+        print(f"✅ Successfully inserted {len(unique_articles)} unique articles into MongoDB.")
     else:
         print(f"⚠ No valid and unique articles to insert.")
 
