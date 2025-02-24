@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_articles, store_articles
+from models import fetch_articles, store_articles, news_collection
 import logging
 
 app = Flask(__name__)

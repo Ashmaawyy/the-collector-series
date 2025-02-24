@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from models import fetch_stocks, store_stocks
+from models import fetch_stocks, store_stocks, stocks_collection
 
 app = Flask(__name__)
 
