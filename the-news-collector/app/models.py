@@ -35,7 +35,7 @@ def store_articles(articles):
     """
     Stores news articles in MongoDB with the new data structure.
     """
-    formatted_articles = {}
+    formatted_articles = []
 
     for article in articles:
         if not news_collection.find_one({"title": article["title"]}):
@@ -50,10 +50,10 @@ def store_articles(articles):
             })
 
     if formatted_articles:
-        news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
+        news_collection.insert_many(set(formatted_articles))
+        print(f"✅ Successfully inserted {len(formatted_articles)} unique articles into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert.")
+        print(f"⚠ No valid and unique articles to insert.")
 
 def get_latest_headlines(limit=50):
     """
