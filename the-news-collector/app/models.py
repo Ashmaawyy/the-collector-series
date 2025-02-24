@@ -48,9 +48,11 @@ def store_articles(articles):
                 "urlToImage": article.get("urlToImage", ""),
                 "category": "General"
             })
+        
+    unique_articles = [article for article in formatted_articles if not news_collection.find_one({"title": article["title"]})]
 
-    if formatted_articles:
-        news_collection.insert_many(formatted_articles.unique())
+    if unique_articles:
+        news_collection.insert_many(unique_articles)
         print(f"✅ Successfully inserted {len(formatted_articles)} unique articles into MongoDB.")
     else:
         print(f"⚠ No valid and unique articles to insert.")
