@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-import os
+import os, datetime
 from dotenv import load_dotenv
 from models import fetch_stocks, store_stocks
 
