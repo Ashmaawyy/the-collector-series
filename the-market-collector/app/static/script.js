@@ -49,17 +49,46 @@ document.addEventListener("DOMContentLoaded", function () {
                         stockCard.classList.add("stock-card", "small-stock");
                         stockCard.innerHTML = `
                             <h2>${stock.symbol}</h2>
-                            <p><strong>Timestamp:</strong> ${stock.timestamp}</p>
-                            <p><strong>Open:</strong> ${stock.open}</p>
-                            <p><strong>High:</strong> ${stock.high}</p>
-                            <p><strong>Low:</strong> ${stock.low}</p>
-                            <p><strong>Close:</strong> ${stock.close}</p>
-                            <p><strong>Volume:</strong> ${stock.volume}</p>
+                            <canvas id="chart-${stock.symbol}"></canvas>
                         `;
                         stocksContainer.appendChild(stockCard);
+
+                        // Render chart
+                        renderChart(stock.symbol, stock.metrics);
                     });
                 });
         }
+    }
+
+    function renderChart(symbol, metrics) {
+        const ctx = document.getElementById(`chart-${symbol}`).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: metrics.map(metric => metric.timestamp),
+                datasets: [{
+                    label: `${symbol} Stock Price`,
+                    data: metrics.map(metric => metric.close),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
     }
 
     searchInput.addEventListener("keypress", function (event) {
@@ -87,16 +116,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 stockCard.innerHTML = `
                     <h2>${stock.symbol}</h2>
-                    <p><strong>Timestamp:</strong> ${stock.timestamp}</p>
-                    <p><strong>Open:</strong> ${stock.open}</p>
-                    <p><strong>High:</strong> ${stock.high}</p>
-                    <p><strong>Low:</strong> ${stock.low}</p>
-                    <p><strong>Close:</strong> ${stock.close}</p>
-                    <p><strong>Volume:</strong> ${stock.volume}</p>
+                    <canvas id="chart-${stock.symbol}"></canvas>
                 `;
 
                 stocksContainer.appendChild(stockCard);
                 setTimeout(() => stockCard.style.opacity = "1", 200);
+
+                // Render chart
+                renderChart(stock.symbol, stock.metrics);
             });
 
             page++;
