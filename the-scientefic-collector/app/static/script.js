@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
+    const searchContainer = document.querySelector(".search-container");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -50,9 +51,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         paperCard.innerHTML = `
                             <h2>${paper.title}</h2>
                             <p><strong>Author:</strong> ${paper.author}</p>
-                            <p><strong>Published:</strong> ${paper.publishedAt}</p>
+                            <p><strong>Published At:</strong> ${paper.publishedAt}</p>
                             <p><strong>Journal:</strong> ${paper.journal}</p>
-                            <div class="paper-abstract">${paper.abstract}</div>
+                            <div class="paper-abstract">
+                                <h1>${paper.abstract.h1}</h1>
+                                <p>${paper.abstract.p}</p>
+                            </div>
                             <a href="${paper.url}" target="_blank">Read Full Paper</a>
                         `;
                         papersContainer.appendChild(paperCard);
@@ -87,9 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 paperCard.innerHTML = `
                     <h2>${paper.title}</h2>
                     <p><strong>Author:</strong> ${paper.author}</p>
-                    <p><strong>Published:</strong> ${paper.publishedAt}</p>
+                    <p><strong>Published At:</strong> ${paper.publishedAt}</p>
                     <p><strong>Journal:</strong> ${paper.journal}</p>
-                    <div class="paper-abstract">${paper.abstract}</div>
+                    <div class="paper-abstract">
+                        <h1>${paper.abstract.h1}</h1>
+                        <p>${paper.abstract.p}</p>
+                    </div>
                     <a href="${paper.url}" target="_blank">Read Full Paper</a>
                 `;
 

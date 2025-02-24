@@ -89,30 +89,17 @@ header {
     text-decoration: underline;
 }
 
-.paper-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
 .paper-abstract {
     margin-bottom: 15px;
 }
 
-.paper-abstract img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
+.paper-abstract h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.paper-abstract a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.paper-abstract a:hover {
-    text-decoration: underline;
+.paper-abstract p {
+    font-size: 14px;
 }
 
 .pagination a {
