@@ -1,51 +1,16 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-import requests
-import datetime
-from dotenv import load_dotenv
 import os
-
-# Load environment variables from keys.env
-load_dotenv('keys.env')
-
-# Get the API key from the environment variable
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+from dotenv import load_dotenv
+from models import fetch_stocks, store_stocks
 
 app = Flask(__name__)
 
-# MongoDB Setup
-client = MongoClient("mongodb://localhost:27017/")
-db = client["the-market-collector"]
-stocks_collection = db["market-collection"]
-
-def fetch_and_store_stocks():
-    api_key = ALPHA_VANTAGE_API_KEY
-    symbols = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Add more stock symbols as needed
-    for symbol in symbols:
-        api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=60min&apikey={api_key}"
-        response = requests.get(api_url)
-        
-        if response.status_code == 200:
-            data = response.json().get("Time Series (60min)", {})
-            for timestamp, stock_data in data.items():
-                if not stocks_collection.find_one({"symbol": symbol, "timestamp": timestamp}):
-                    stocks_collection.insert_one({
-                        "symbol": symbol,
-                        "timestamp": timestamp,
-                        "open": stock_data["1. open"],
-                        "high": stock_data["2. high"],
-                        "low": stock_data["3. low"],
-                        "close": stock_data["4. close"],
-                        "volume": stock_data["5. volume"]
-                    })
-            print(f"Stock data for {symbol} updated!")
-        else:
-            print(f"Failed to fetch stock data for {symbol}.")
-
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_and_store_stocks, "interval", minutes=5)
+scheduler.add_job(fetch_stocks, "interval", minutes=5)
+scheduler.add_job(store_stocks, "interval", minutes=6)
 scheduler.start()
 
 @app.route('/')
