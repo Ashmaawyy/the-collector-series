@@ -41,7 +41,7 @@ def fetch_stocks():
                 }
                 all_stocks_data.append(stock_record)
         else:
-            print(f"Failed to fetch stock data for {symbol}. Status code: {response.status_code}")
+            print(f"❌️ Failed to fetch stock data for {symbol}. Status code: {response.status_code}")
 
     return all_stocks_data
 
@@ -49,7 +49,11 @@ def store_stocks(stocks_data):
     """
     Stores fetched stock data in MongoDB.
     """
-    for stock in stocks_data:
-        if not stocks_collection.find_one({"symbol": stock["symbol"], "timestamp": stock["timestamp"]}):
-            stocks_collection.insert_one(stock)
-    print(f"✅ Successfully stored {len(stocks_data)} stock records in MongoDB.")
+    if not stocks_data:
+        print("❌ No stock data to store.")
+        return
+    else:
+        for stock in stocks_data:
+            if not stocks_collection.find_one({"symbol": stock["symbol"], "timestamp": stock["timestamp"]}):
+                stocks_collection.insert_one(stock)
+        print(f"✅ Successfully stored {len(stocks_data)} stock records in MongoDB.")
