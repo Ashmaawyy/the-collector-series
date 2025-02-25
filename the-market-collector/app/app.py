@@ -68,12 +68,16 @@ def load_more_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "metrics": item["metrics"]
+            "timestamp": item["timestamp"],
+            "open": item["open"],
+            "high": item["high"],
+            "low": item["low"],
+            "close": item["close"],
+            "volume": item["volume"]
         } for item in stocks
     ]
 
     return jsonify({"stocks": stocks_data})
-
 
 @app.route('/search_stocks')
 def search_stocks():
@@ -83,7 +87,12 @@ def search_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "metrics": item["metrics"]
+            "timestamp": item["timestamp"],
+            "open": item["open"],
+            "high": item["high"],
+            "low": item["low"],
+            "close": item["close"],
+            "volume": item["volume"]
         } for item in stocks
     ]
 
