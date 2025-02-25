@@ -61,24 +61,19 @@ def load_latest_stocks():
 
 @app.route('/load_more_stocks')
 def load_more_stocks():
-    page = request.args.get("page", 1, type=int)
-    per_page = 10  # Load more stocks per scroll
-
-    stocks = list(stocks_collection.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
+    page = int(request.args.get("page", 1))
+    per_page = 10
+    stocks = list(stocks_collection.find().skip((page - 1) * per_page).limit(per_page))
 
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "timestamp": item["timestamp"],
-            "open": item["open"],
-            "high": item["high"],
-            "low": item["low"],
-            "close": item["close"],
-            "volume": item["volume"]
+            "metrics": item["metrics"]
         } for item in stocks
     ]
 
-    return jsonify({"stocks": stocks_data, "page": page})
+    return jsonify({"stocks": stocks_data})
+
 
 @app.route('/search_stocks')
 def search_stocks():
@@ -88,12 +83,7 @@ def search_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "timestamp": item["timestamp"],
-            "open": item["open"],
-            "high": item["high"],
-            "low": item["low"],
-            "close": item["close"],
-            "volume": item["volume"]
+            "metrics": item["metrics"]
         } for item in stocks
     ]
 
