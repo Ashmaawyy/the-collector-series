@@ -49,46 +49,17 @@ document.addEventListener("DOMContentLoaded", function () {
                         stockCard.classList.add("stock-card", "small-stock");
                         stockCard.innerHTML = `
                             <h2>${stock.symbol}</h2>
-                            <canvas id="chart-${stock.symbol}"></canvas>
+                            <p>Timestamp: ${stock.timestamp}</p>
+                            <p>Open: ${stock.open}</p>
+                            <p>High: ${stock.high}</p>
+                            <p>Low: ${stock.low}</p>
+                            <p>Close: ${stock.close}</p>
+                            <p>Volume: ${stock.volume}</p>
                         `;
                         stocksContainer.appendChild(stockCard);
-
-                        // Render chart
-                        renderChart(stock.symbol, stock.metrics);
                     });
                 });
         }
-    }
-
-    function renderChart(symbol, metrics) {
-        const ctx = document.getElementById(`chart-${symbol}`).getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: metrics.map(metric => metric.timestamp),
-                datasets: [{
-                    label: `${symbol} Stock Price`,
-                    data: metrics.map(metric => metric.close),
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day'
-                        }
-                    },
-                    y: {
-                        beginAtZero: false
-                    }
-                }
-            }
-        });
     }
 
     searchInput.addEventListener("keypress", function (event) {
@@ -116,14 +87,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 stockCard.innerHTML = `
                     <h2>${stock.symbol}</h2>
-                    <canvas id="chart-${stock.symbol}"></canvas>
+                    <p>Timestamp: ${stock.timestamp}</p>
+                    <p>Open: ${stock.open}</p>
+                    <p>High: ${stock.high}</p>
+                    <p>Low: ${stock.low}</p>
+                    <p>Close: ${stock.close}</p>
+                    <p>Volume: ${stock.volume}</p>
                 `;
 
                 stocksContainer.appendChild(stockCard);
                 setTimeout(() => stockCard.style.opacity = "1", 200);
-
-                // Render chart
-                renderChart(stock.symbol, stock.metrics);
             });
 
             page++;
