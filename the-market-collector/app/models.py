@@ -40,10 +40,13 @@ def fetch_stocks():
                     "volume": stock_data["5. volume"]
                 }
                 all_stocks_data.append(stock_record)
-        else:
-            print(f"❌️ Failed to fetch stock data for {symbol}. Status code: {response.status_code}")
 
-    return all_stocks_data
+    if not all_stocks_data:
+        print("❌ No stock data fetched.")
+        return []
+    else:
+        print(f"✅ Successfully fetched {len(all_stocks_data)} records.")
+        return all_stocks_data
 
 def store_stocks(stocks_data):
     """
