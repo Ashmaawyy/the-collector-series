@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import time
 import requests
 import os
-from dotenv import load_dotenv
+
 
 # Load environment variables from keys.env
 load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
@@ -24,11 +26,11 @@ def fetch_stocks():
     all_stocks_data = []
 
     for symbol in symbols:
-        api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=10min&apikey={api_key}"
+        api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=60min&apikey={api_key}"
         response = requests.get(api_url)
         
         if response.status_code == 200:
-            data = response.json().get("Time Series (10min)", {})
+            data = response.json().get("Time Series (60min)", {})
             for timestamp, stock_data in data.items():
                 stock_record = {
                     "symbol": symbol,
@@ -40,6 +42,11 @@ def fetch_stocks():
                     "volume": stock_data["5. volume"]
                 }
                 all_stocks_data.append(stock_record)
+        else:
+            print(f"❌ Failed to fetch data for {symbol}. Status code: {response.status_code}")
+        
+        # Add a delay to avoid hitting the API rate limit
+        time.sleep(12)  # 12 seconds delay to stay within the free tier limit of 5 requests per minute
 
     if not all_stocks_data:
         print("❌ No stock data fetched.")
@@ -47,6 +54,7 @@ def fetch_stocks():
     else:
         print(f"✅ Successfully fetched {len(all_stocks_data)} records.")
         return all_stocks_data
+
 
 def store_stocks(stocks_data):
     """
