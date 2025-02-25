@@ -20,7 +20,7 @@ def fetch_stocks():
     Fetches stock data from Alpha Vantage API.
     """
     api_key = ALPHA_VANTAGE_API_KEY
-    symbols = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Add more stock symbols as needed
+    symbols = ["GOOGL", "MSFT", "AMZN", "TSLA"]  # Add more stock symbols as needed
     all_stocks_data = []
 
     for symbol in symbols:
