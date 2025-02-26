@@ -25,11 +25,12 @@ def fetch_stocks():
     symbol = "TSLA"  # Add more stock symbols as needed
     all_stocks_data = []
 
-    api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=5min&apikey={api_key}"
+    api_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&interval=5min&apikey={api_key}"
     response = requests.get(api_url)
     
     if response.status_code == 200:
         data = response.json()
+        print(f"✅ Successfully fetched data for {symbol}.", data)
         for timestamp, stock_data in data.items():
             stock_record = {
                 "symbol": symbol,
