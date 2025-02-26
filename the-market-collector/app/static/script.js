@@ -34,6 +34,27 @@ document.addEventListener("DOMContentLoaded", function () {
         applyTheme(theme);
     });
 
+    // Initialize stocks-container with initial stock data
+    const initialStocks = JSON.parse('{{ stocks | tojson | safe }}');
+    const stocksContainer = document.getElementById("stocks-container");
+    
+    stocksContainer.innerHTML = "";
+
+    initialStocks.forEach(stock => {
+        const stockCard = document.createElement("div");
+        stockCard.classList.add("stock-card", "small-stock");
+        stockCard.innerHTML = `
+            <h2>${stock.symbol}</h2>
+            <p>Timestamp: ${stock.timestamp}</p>
+            <p>Open: ${stock.open}</p>
+            <p>High: ${stock.high}</p>
+            <p>Low: ${stock.low}</p>
+            <p>Close: ${stock.close}</p>
+            <p>Volume: ${stock.volume}</p>
+        `;
+        stocksContainer.appendChild(stockCard);
+    });
+
     // Search functionality (Enter key)
     function performSearch() {
         const query = searchInput.value.trim();

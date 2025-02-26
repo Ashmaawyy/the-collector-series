@@ -23,7 +23,19 @@
     </header>
     
     <section id="stocks-container">
-        <!-- Stock cards will be dynamically inserted here -->
+        {% if stocks %}
+            {% for stock in stocks %}
+                <div class="stock-card small-stock">
+                    <h2>{{ stock.symbol }}</h2>
+                    <p>Timestamp: {{ stock.timestamp }}</p>
+                    <p>Open: {{ stock.open }}</p>
+                    <p>High: {{ stock.high }}</p>
+                    <p>Low: {{ stock.low }}</p>
+                    <p>Close: {{ stock.close }}</p>
+                    <p>Volume: {{ stock.volume }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
     </section>
     <button id="back-to-top" class="back-to-top">⏫</button>
 </body>
