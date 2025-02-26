@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
 from models import fetch_articles, store_articles, news_collection
-import logging
 from datetime import datetime
+import logging
+import re
 
 app = Flask(__name__)
 
@@ -82,8 +83,9 @@ def load_more_news():
 
 @app.route('/search_news')
 def search_news():
-    query = request.args.get("q", "").lower()
-    news = list(news_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
+    query = re.escape(request.args.get("q", "").strip().lower())
+    news_collection.create_index([("title", "text")])
+    news = list(news_collection.find({"$text": {"$search": query}}).limit(10))
 
     news_data = [
         {
