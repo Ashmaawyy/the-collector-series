@@ -32,7 +32,7 @@ def fetch_articles():
             print("⚠ No articles found.")
             return []
     else:
-        print(f"Failed to fetch articles from NewsAPI. Status code: {response.status_code}")
+        print(f"❌️ Failed to fetch articles from NewsAPI. Status code: {response.status_code}")
         return []
 
 def store_articles(articles):
