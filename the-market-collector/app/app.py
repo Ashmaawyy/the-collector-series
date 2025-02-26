@@ -33,7 +33,7 @@ def index():
     total_count = stocks_collection.count_documents({})
     total_pages = (total_count + per_page - 1) // per_page
     
-    stocks = list(stocks_collection.find().sort("date", -1).skip((page - 1) * per_page).limit(per_page))
+    stocks = list(stocks_collection.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
     
     return render_template("index.html", stocks=stocks, page=page, total_pages=total_pages)
 
@@ -44,12 +44,12 @@ def update_stocks():
 
 @app.route('/load_latest_stocks')
 def load_latest_stocks():
-    latest_stocks = list(stocks_collection.find().sort("date", -1).limit(5))
+    latest_stocks = list(stocks_collection.find().sort("timestamp", -1).limit(5))
 
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "date": item["date"],
+            "timestamp": item["timestamp"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
@@ -69,7 +69,7 @@ def load_more_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "date": item["date"],
+            "timestamp": item["timestamp"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
@@ -89,7 +89,7 @@ def search_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "date": item["date"],
+            "timestamp": item["timestamp"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
