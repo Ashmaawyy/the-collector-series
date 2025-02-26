@@ -15,7 +15,6 @@ NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 client = MongoClient("mongodb://localhost:27017/")
 db = client["the-news-collector"]
 news_collection = db["news-collection"]
-temp_news_collection = db["temp-news-collection"]
 
 def fetch_articles():
     """
