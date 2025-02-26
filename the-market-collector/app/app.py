@@ -83,7 +83,7 @@ def load_more_stocks():
 @app.route('/search_stocks')
 def search_stocks():
     query = re.escape(request.args.get("q", "").strip().upper())
-    stocks.create_index([("symbol", "text")])
+    stocks_collection.create_index([("symbol", "text")])
     stocks = list(stocks_collection.find({"$text": {"$search": query}}).limit(10))
 
     stocks_data = [
