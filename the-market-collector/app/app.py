@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-import os
 from datetime import datetime
 from dotenv import load_dotenv
 from models import fetch_stocks, store_stocks, stocks_collection
+import os
+import re
 
 app = Flask(__name__)
 
@@ -32,7 +33,7 @@ def index():
     total_count = stocks_collection.count_documents({})
     total_pages = (total_count + per_page - 1) // per_page
     
-    stocks = list(stocks_collection.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
+    stocks = list(stocks_collection.find().sort("date", -1).skip((page - 1) * per_page).limit(per_page))
     
     return render_template("index.html", stocks=stocks, page=page, total_pages=total_pages)
 
@@ -43,12 +44,12 @@ def update_stocks():
 
 @app.route('/load_latest_stocks')
 def load_latest_stocks():
-    latest_stocks = list(stocks_collection.find().sort("timestamp", -1).limit(5))
+    latest_stocks = list(stocks_collection.find().sort("date", -1).limit(5))
 
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "timestamp": item["timestamp"],
+            "date": item["date"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
@@ -68,7 +69,7 @@ def load_more_stocks():
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "timestamp": item["timestamp"],
+            "date": item["date"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
@@ -81,13 +82,14 @@ def load_more_stocks():
 
 @app.route('/search_stocks')
 def search_stocks():
-    query = request.args.get("q", "").upper()
-    stocks = list(stocks_collection.find({"symbol": {"$regex": query, "$options": "i"}}).limit(10))
+    query = re.escape(request.args.get("q", "").strip().upper())
+    stocks.create_index([("symbol", "text")])
+    stocks = list(stocks_collection.find({"$text": {"$search": query}}).limit(10))
 
     stocks_data = [
         {
             "symbol": item["symbol"],
-            "timestamp": item["timestamp"],
+            "date": item["date"],
             "open": item["open"],
             "high": item["high"],
             "low": item["low"],
