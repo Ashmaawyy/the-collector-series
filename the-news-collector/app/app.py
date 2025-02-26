@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
 from models import fetch_articles, store_articles, news_collection
 import logging
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -21,8 +22,8 @@ def store_articles_job():
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_articles_job, "interval", minutes=5)
-scheduler.add_job(store_articles_job, "interval", minutes=6)
+scheduler.add_job(fetch_articles_job, "interval", minutes=5, next_run_time=datetime.now())
+scheduler.add_job(store_articles_job, "interval", minutes=6, next_run_time=datetime.now())
 scheduler.start()
 
 @app.route('/')
