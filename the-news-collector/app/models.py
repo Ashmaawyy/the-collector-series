@@ -25,7 +25,12 @@ def fetch_articles():
     
     if response.status_code == 200:
         articles = response.json().get("articles", [])
-        return articles
+        if articles:
+            print(f"✅ Successfully fetched {len(articles)} articles from NewsAPI.")
+            return articles
+        else:
+            print("⚠ No articles found.")
+            return []
     else:
         print(f"Failed to fetch articles from NewsAPI. Status code: {response.status_code}")
         return []
@@ -52,7 +57,7 @@ def store_articles(articles):
         news_collection.insert_many(formatted_articles)
         print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
-        print(f"⚠️ No valid articles to insert.")
+        print(f"⚠ No valid articles to insert.")
 
 
 def get_latest_headlines(limit=50):
