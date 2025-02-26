@@ -29,7 +29,7 @@ def fetch_stocks():
     response = requests.get(api_url)
     
     if response.status_code == 200:
-        data = response.json()
+        data = response.json().get("Time Series (5min)")
         if not data:
             print(f"❌ No data fetched for {symbol}.")
         else:
