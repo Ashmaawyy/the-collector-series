@@ -57,7 +57,7 @@ def store_articles(articles):
         news_collection.insert_many(formatted_articles)
         print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
-        print(f"⚠ No valid articles to insert.")
+        print(f"⚠ No valid and unique articles to insert.")
 
 
 def get_latest_headlines(limit=50):
