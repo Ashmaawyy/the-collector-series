@@ -23,7 +23,7 @@ def get_latest_stocks(limit=50):
         return []
 
 def fetch_stocks():
-    symbol = "TSLA"
+    symbol = "BTCUSD"
     all_stocks_data = []
     
     logger.info(f"🌐 Attempting to fetch stock data for {symbol}...")

@@ -1,35 +1,44 @@
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from app import app
-from models import get_latest_stocks, stocks_collection
+from models import stocks_collection
 
-PAGE_SIZE = 5
+PAGE_SIZE = 6  # Number of items per load
 
 @app.route("/")
 def home():
-    """Main route serving the dashboard"""
-    query = request.args.get("q", "").strip().upper()
-    page = int(request.args.get("page", 1))
-    
+    """Main route serving the initial dashboard view"""
+    return render_template("index.html")
+
+@app.route('/load_more_stocks')
+def load_more_stocks():
+    """API endpoint for infinite scroll loading"""
     try:
-        # Get paginated results
+        page = int(request.args.get("page", 1))
+        query = request.args.get("q", "").strip().upper()
+        
         skip = (page - 1) * PAGE_SIZE
+        
         pipeline = [
             {"$match": {"symbol": {"$regex": f".*{query}.*", "$options": "i"}}},
             {"$sort": {"timestamp": -1}},
             {"$skip": skip},
-            {"$limit": PAGE_SIZE}
+            {"$limit": PAGE_SIZE},
+            {"$project": {
+                "_id": 0,
+                "symbol": 1,
+                "timestamp": 1,
+                "open": 1,
+                "high": 1,
+                "low": 1,
+                "close": 1,
+                "volume": 1
+            }}
         ]
         
         stocks = list(stocks_collection.aggregate(pipeline))
-        total_count = stocks_collection.count_documents({"symbol": {"$regex": query, "$options": "i"}})
-        total_pages = (total_count + PAGE_SIZE - 1) // PAGE_SIZE
         
-        return render_template("index.html", 
-                             stocks=stocks,
-                             page=page,
-                             total_pages=total_pages,
-                             query=query)
+        return jsonify({"stocks": stocks})
     
     except Exception as e:
-        app.logger.error(f"🔥 Route error: {str(e)}")
-        return render_template("error.html", message="Failed to load stock data"), 500
+        app.logger.error(f"🔥 Load more error: {str(e)}")
+        return jsonify({"error": "Failed to load more stocks"}), 500
