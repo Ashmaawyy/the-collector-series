@@ -2,7 +2,7 @@ from flask import render_template, request, jsonify
 from app import app
 from models import stocks_collection
 
-PAGE_SIZE = 6  # Number of items per load
+PAGE_SIZE = 15  # Number of items per load
 
 @app.route("/")
 def home():

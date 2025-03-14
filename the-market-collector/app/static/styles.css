@@ -219,3 +219,145 @@ input:checked + .slider:before {
     margin: 20px auto;
     padding: 20px;
 }
+
+/* Loading Indicator */
+.loading-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Status Messages */
+.status-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    z-index: 1000;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { bottom: -50px; }
+    to { bottom: 20px; }
+}
+
+.dark-mode .loading-indicator,
+.dark-mode .status-message {
+    background: #333;
+    border: 1px solid #555;
+}
+
+/* Stock Card Enhancements */
+.stock-card {
+    position: relative;
+    padding: 20px;
+    transition: transform 0.2s ease;
+}
+
+.stock-card:hover {
+    transform: translateY(-3px);
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.dark-mode .timestamp {
+    color: #aaa;
+}
+
+.price-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 6px;
+}
+
+.price-item .label {
+    font-weight: 500;
+    color: #444;
+}
+
+.price-item .value {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.dark-mode .price-item .label {
+    color: #ccc;
+}
+
+.dark-mode .price-item .value {
+    color: #f8f9fa;
+}
+
+.volume {
+    text-align: center;
+    font-size: 0.9em;
+    padding: 8px;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 6px;
+}
+
+#stocks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stock-card {
+    width: 100%;
+    min-height: 200px;
+    box-sizing: border-box;
+    break-inside: avoid;
+    overflow: hidden;
+}
+
+.price-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+@media (min-width: 768px) {
+    #stocks-container {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+    
+    .price-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

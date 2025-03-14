@@ -1,158 +1,173 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const toggleSwitch = document.getElementById("theme-toggle");
-    const body = document.body;
-    const backToTopBtn = document.getElementById("back-to-top");
-    const moonIcon = document.querySelector(".moon");
-    const sunIcon = document.querySelector(".sun");
+    // Configuration
+    const PAGE_SIZE = 15; // Increased page size
+    const SCROLL_THRESHOLD = 100;
+    const LOAD_DELAY = 200;
+    
+    // DOM Elements
+    const stocksContainer = document.getElementById("stocks-container");
     const searchInput = document.getElementById("search-input");
-    const header = document.querySelector("header");
+    const backToTopBtn = document.getElementById("back-to-top");
+    const themeToggle = document.getElementById("theme-toggle");
+    const loadingIndicator = document.createElement('div');
+    
+    // State Management
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
 
-    function applyTheme(theme) {
-        if (theme === "dark") {
-            body.classList.add("dark-mode");
-            header.classList.add("dark-header");
-            searchInput.classList.add("dark-search");
-            toggleSwitch.checked = true;
-            moonIcon.style.opacity = "1";
-            sunIcon.style.opacity = "0.3";
-        } else {
-            body.classList.remove("dark-mode");
-            header.classList.remove("dark-header");
-            searchInput.classList.remove("dark-search");
-            moonIcon.style.opacity = "0.3";
-            sunIcon.style.opacity = "1";
-        }
+    // Initialize loading indicator
+    loadingIndicator.className = 'loading-indicator';
+    loadingIndicator.innerHTML = '🔄 Loading more stocks...';
+    document.body.appendChild(loadingIndicator);
+
+    // Initial load
+    loadMoreStocks();
+
+    // Theme Toggle Functionality
+    function handleThemeToggle() {
+        const theme = themeToggle.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+        document.body.classList.toggle('dark-mode', theme === 'dark');
+        document.querySelector('header').classList.toggle('dark-header', theme === 'dark');
+        searchInput.classList.toggle('dark-search', theme === 'dark');
     }
 
     // Apply saved theme
-    applyTheme(localStorage.getItem("theme") || "dark");
-
-    // Theme toggle functionality
-    toggleSwitch.addEventListener("change", function () {
-        const theme = this.checked ? "dark" : "light";
-        localStorage.setItem("theme", theme);
-        applyTheme(theme);
-    });
-
-    // Initialize stocks-container with initial stock data
-    const initialStocks = JSON.parse('{{ stocks | tojson | safe }}');
-    const stocksContainer = document.getElementById("stocks-container");
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.add(savedTheme === 'dark' ? 'dark-mode' : 'light-mode');
+    themeToggle.checked = savedTheme === 'dark';
+    handleThemeToggle();
     
-    stocksContainer.innerHTML = "";
+    // Event Listeners
+    themeToggle.addEventListener('change', handleThemeToggle);
+    
+    searchInput.addEventListener('input', debounce(() => {
+        currentPage = 1;
+        hasMore = true;
+        stocksContainer.innerHTML = '';
+        loadMoreStocks();
+    }, 300));
 
-    initialStocks.forEach(stock => {
-        const stockCard = document.createElement("div");
-        stockCard.classList.add("stock-card", "small-stock");
-        stockCard.innerHTML = `
-            <h2>${stock.symbol}</h2>
-            <p>Timestamp: ${stock.timestamp}</p>
-            <p>Open: ${stock.open}</p>
-            <p>High: ${stock.high}</p>
-            <p>Low: ${stock.low}</p>
-            <p>Close: ${stock.close}</p>
-            <p>Volume: ${stock.volume}</p>
-        `;
-        stocksContainer.appendChild(stockCard);
-    });
+    window.addEventListener('scroll', () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        
+        backToTopBtn.style.display = scrollTop > 300 ? 'block' : 'none';
 
-    // Search functionality (Enter key)
-    function performSearch() {
-        const query = searchInput.value.trim();
-        if (query !== "") {
-            fetch(`/search_stocks?q=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    const stocksContainer = document.getElementById("stocks-container");
-                    stocksContainer.innerHTML = "";
-
-                    data.stocks.forEach(stock => {
-                        const stockCard = document.createElement("div");
-                        stockCard.classList.add("stock-card", "small-stock");
-                        stockCard.innerHTML = `
-                            <h2>${stock.symbol}</h2>
-                            <p>Timestamp: ${stock.timestamp}</p>
-                            <p>Open: ${stock.open}</p>
-                            <p>High: ${stock.high}</p>
-                            <p>Low: ${stock.low}</p>
-                            <p>Close: ${stock.close}</p>
-                            <p>Volume: ${stock.volume}</p>
-                        `;
-                        stocksContainer.appendChild(stockCard);
-                    });
-                });
-        }
-    }
-
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            performSearch();
-        }
-    });
-
-    let page = 1;
-    let loading = false;
-
-    async function loadMoreStocks() {
-        if (loading) return;
-        loading = true;
-
-        const response = await fetch(`/load_more_stocks?page=${page}`);
-        const data = await response.json();
-
-        if (data.stocks.length > 0) {
-            const stocksContainer = document.getElementById("stocks-container");
-            data.stocks.forEach(stock => {
-                const stockCard = document.createElement("div");
-                stockCard.classList.add("stock-card", "small-stock");
-                stockCard.style.opacity = "0";
-
-                stockCard.innerHTML = `
-                    <h2>${stock.symbol}</h2>
-                    <p>Timestamp: ${stock.timestamp}</p>
-                    <p>Open: ${stock.open}</p>
-                    <p>High: ${stock.high}</p>
-                    <p>Low: ${stock.low}</p>
-                    <p>Close: ${stock.close}</p>
-                    <p>Volume: ${stock.volume}</p>
-                `;
-
-                stocksContainer.appendChild(stockCard);
-                setTimeout(() => stockCard.style.opacity = "1", 200);
-            });
-
-            page++;
-            loading = false;
-        }
-    }
-
-    window.addEventListener("scroll", function () {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        if (scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD && !isLoading && hasMore) {
             loadMoreStocks();
         }
+    });
 
-        if (window.scrollY > 300) {
-            backToTopBtn.style.display = "block";
-        } else {
-            backToTopBtn.style.display = "none";
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Core Loading Function
+    async function loadMoreStocks() {
+        if (isLoading || !hasMore) return;
+        
+        try {
+            isLoading = true;
+            loadingIndicator.style.display = 'block';
+
+            const response = await fetch(
+                `/load_more_stocks?page=${currentPage}&q=${encodeURIComponent(searchInput.value.trim())}`
+            );
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const { stocks } = await response.json();
+            
+            if (stocks.length === 0) {
+                hasMore = false;
+                showMessage('✅ Reached end of stock data');
+                return;
+            }
+
+            stocks.forEach(stock => {
+                const stockCard = createStockCard(stock);
+                stocksContainer.appendChild(stockCard);
+                setTimeout(() => stockCard.style.opacity = 1, LOAD_DELAY);
+            });
+
+            currentPage++;
+        } catch (error) {
+            console.error('Failed to load stocks:', error);
+            showMessage('❌ Failed to load more stocks');
+        } finally {
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
         }
-    });
+    }
 
-    backToTopBtn.addEventListener("click", function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    // Helper Functions
+    function createStockCard(stock) {
+        const card = document.createElement('div');
+        card.className = 'stock-card small-stock';
+        card.style.opacity = '0';
+        card.innerHTML = `
+            <div class="stock-header">
+                <h2>${stock.symbol}</h2>
+                <span class="timestamp">${formatTimestamp(stock.timestamp)}</span>
+            </div>
+            <div class="price-grid">
+                <div class="price-item">
+                    <span class="label">📌 Open</span>
+                    <span class="value">${formatCurrency(stock.open)}</span>
+                </div>
+                <div class="price-item">
+                    <span class="label">📈 High</span>
+                    <span class="value">${formatCurrency(stock.high)}</span>
+                </div>
+                <div class="price-item">
+                    <span class="label">📉 Low</span>
+                    <span class="value">${formatCurrency(stock.low)}</span>
+                </div>
+                <div class="price-item">
+                    <span class="label">📌 Close</span>
+                    <span class="value">${formatCurrency(stock.close)}</span>
+                </div>
+            </div>
+            <div class="volume">
+                📊 Volume: ${formatNumber(stock.volume)}
+            </div>
+        `;
+        return card;
+    }
 
-    // Pull to refresh functionality
-    let touchStartY = 0;
-    let touchEndY = 0;
+    function formatCurrency(value) {
+        return `$${parseFloat(value).toFixed(2)}`;
+    }
 
-    window.addEventListener("touchstart", function (event) {
-        touchStartY = event.touches[0].clientY;
-    });
+    function formatNumber(value) {
+        return parseInt(value).toLocaleString();
+    }
 
-    window.addEventListener("touchend", function (event) {
-        touchEndY = event.changedTouches[0].clientY;
-        if (touchEndY - touchStartY > 100) { // Adjust the threshold as needed
-            location.reload();
-        }
-    });
+    function formatTimestamp(ts) {
+        const date = new Date(ts);
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    function debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, args), timeout);
+        };
+    }
+
+    function showMessage(text) {
+        const msg = document.createElement('div');
+        msg.className = 'status-message';
+        msg.textContent = text;
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3000);
+    }
 });
