@@ -10,10 +10,11 @@ app = Flask(__name__)
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="🕒 %(asctime)s - 📍 %(name)s - 📊 %(levelname)s - 📝 %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('application.log')
+        logging.FileHandler('scientefic_collector.log')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -129,4 +130,4 @@ def search_papers():
 
 if __name__ == "__main__":
     logger.info("🚀 The Scientefic Collector is starting on port 5000")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=True, port=5000, host="0.0.0.0")

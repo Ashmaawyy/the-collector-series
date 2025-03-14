@@ -1,14 +1,26 @@
-from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient
-from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import datetime
 import tweepy
 import praw  # Reddit API
+import logging
+import os
+from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
+from apscheduler.schedulers.background import BackgroundScheduler
 from googleapiclient.discovery import build  # YouTube API
 from dotenv import load_dotenv
-import os
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="🕒 %(asctime)s - 📍 %(name)s - 📊 %(levelname)s - 📝 %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('trend_collector.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 # Load environment variables from keys.env
 load_dotenv('keys.env')
 
