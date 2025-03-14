@@ -15,7 +15,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('news_collector.log')
+        logging.FileHandler('news_collector.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
