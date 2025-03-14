@@ -1,103 +1,101 @@
-from flask import Flask, render_template, request, jsonify
-from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_papers, store_papers, papers_collection
 from pymongo import MongoClient
-import datetime
+from datetime import datetime, timedelta
+import requests
+import os
 import logging
-
-app = Flask(__name__)
+from dotenv import load_dotenv
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Global variable to store fetched papers
-fetched_papers = []
+# Load environment variables from keys.env
+load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
 
-def fetch_papers_job():
-    global fetched_papers
-    fetched_paperss = fetch_papers()
+# Get the API key from the environment variable
+SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
 
-def store_papers_job():
-    global fetched_papers
-    store_papers(fetched_papers)
+# MongoDB Setup
+client = MongoClient("mongodb://localhost:27017/")
+db = client["the-scientific-collector"]
+papers_collection = db["scientific-collection"]
 
-# Scheduler
-scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_papers_job, "interval", minutes=5, next_run_time=datetime.datetime.now())
-scheduler.add_job(store_papers_job, "interval", minutes=6, next_run_time=datetime.datetime.now())
-scheduler.start()
+def fetch_papers(days=60, max_results=100):
+    """
+    Fetches newly published scientific articles from Springer using their API.
+    """
+    papers = []
+    start = 1
+    rows = 10  # Number of results per page (adjust as needed)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
 
-@app.route('/')
-def index():
-    page = request.args.get("page", 1, type=int)
-    per_page = 5
-    total_count = papers_collection.count_documents({})
-    total_pages = (total_count + per_page - 1) // per_page
+    try:
+        while len(papers) < max_results:
+            url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{start_date.strftime('%Y-%m-%d')} TO {end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
+            headers = {
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if not data['records']:
+                    logger.info("📭 No more records to fetch")
+                    break  # No more records to fetch
+
+                for record in data['records']:
+                    paper = {
+                        "title": record.get("title", "No title"),
+                        "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
+                        "publishedAt": record.get("publicationDate", "No date"),
+                        "url": record.get("url", [{"value": "No URL"}])[0]["value"],
+                        "abstract": {
+                            "h1": "Abstract",
+                            "p": record.get("abstract", "No abstract")
+                        },
+                        "journal": record.get("publicationName", "Springer")
+                    }
+                    papers.append(paper)
+                    if len(papers) >= max_results:
+                        break
+
+                start += rows
+                logger.debug(f"📥 Fetched {len(papers)} papers so far")
+            else:
+                logger.error(f"❌ Failed to fetch articles from Springer. Status code: {response.status_code}")
+                break
+
+        logger.info(f"✅ Successfully fetched {len(papers)} papers from Springer")
+        return papers
     
-    papers = list(papers_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
+    except Exception as e:
+        logger.error(f"🔥 Critical error fetching papers: {str(e)}")
+        return []
+
+def store_papers(papers):
+    """
+    Stores scraped scientific articles in MongoDB with the new data structure.
+    """
+    try:
+        formatted_papers = []
+        duplicates = 0
+
+        for paper in papers:
+            if not papers_collection.find_one({"title": paper["title"]}):
+                formatted_papers.append(paper)
+            else:
+                duplicates += 1
+
+        if duplicates > 0:
+            logger.warning(f"⚠️ Found {duplicates} duplicate papers")
+
+        if formatted_papers:
+            papers_collection.insert_many(formatted_papers)
+            logger.info(f"📚 Successfully inserted {len(formatted_papers)} papers into MongoDB")
+        else:
+            logger.warning("📭 No valid and unique papers to insert")
     
-    return render_template("index.html", papers=papers, page=page, total_pages=total_pages)
-
-@app.route('/update_papers', methods=['GET'])
-def update_papers():
-    fetch_and_store_temp_papers()
-    store_temp_papers()
-    return jsonify({"status": "success", "message": "Papers updated!"})
-
-@app.route('/load_latest_papers')
-def load_latest_papers():
-    latest_papers = list(papers_collection.find().sort("publishedAt", -1).limit(5))
-
-    papers_data = [
-        {
-            "title": item["title"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"],
-            "url": item["url"],
-            "abstract": item.get("abstract", ""),
-            "journal": item.get("journal", "N/A")
-        } for item in latest_papers
-    ]
-
-    return jsonify({"papers": papers_data})
-
-@app.route('/load_more_papers')
-def load_more_papers():
-    page = request.args.get("page", 1, type=int)
-    per_page = 10  # Load more papers per scroll
-
-    papers = list(papers_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
-
-    papers_data = [
-        {
-            "title": item["title"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item["publishedAt"],
-            "url": item["url"],
-            "abstract": item.get("abstract", ""),
-            "journal": item.get("journal", "N/A")
-        } for item in papers
-    ]
-
-    return jsonify({"papers": papers_data, "page": page})
-
-@app.route('/search_papers')
-def search_papers():
-    query = request.args.get("q", "").lower()
-    papers = list(papers_collection.find({"title": {"$regex": query, "$options": "i"}}).limit(10))
-
-    papers_data = [
-        {
-            "title": item["title"],
-            "author": item.get("author", "N/A"),
-            "publishedAt": item.get("publishedAt", ""),
-            "url": item["url"],
-            "abstract": item.get("abstract", ""),
-            "journal": item.get("journal", "N/A")
-        } for item in papers
-    ]
-
-    return jsonify({"papers": papers_data})
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    except Exception as e:
+        logger.error(f"🔥 Failed to store papers: {str(e)}")

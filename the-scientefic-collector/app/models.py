@@ -2,7 +2,11 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 import requests
 import os
+import logging
 from dotenv import load_dotenv
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Load environment variables from keys.env
 load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
@@ -25,55 +29,73 @@ def fetch_papers(days=60, max_results=100):
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
 
-    while len(papers) < max_results:
-        url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{start_date.strftime('%Y-%m-%d')} TO {end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
-        headers = {
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if not data['records']:
-                break  # No more records to fetch
+    try:
+        while len(papers) < max_results:
+            url = f"https://api.springernature.com/openaccess/json?api_key={SPRINGER_API_KEY}&q=onlinedate:{start_date.strftime('%Y-%m-%d')} TO {end_date.strftime('%Y-%m-%d')}&p={start}&s={rows}"
+            headers = {
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if not data['records']:
+                    logger.info("📭 No more records to fetch")
+                    break  # No more records to fetch
 
-            for record in data['records']:
-                paper = {
-                    "title": record.get("title", "No title"),
-                    "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
-                    "publishedAt": record.get("publicationDate", "No date"),
-                    "url": record.get("url", [{"value": "No URL"}])[0]["value"],
-                    "abstract": {
-                        "h1": "Abstract",
-                        "p": record.get("abstract", "No abstract")
-                    },
-                    "journal": record.get("publicationName", "Springer")
-                }
-                papers.append(paper)
-                if len(papers) >= max_results:
-                    break
+                for record in data['records']:
+                    paper = {
+                        "title": record.get("title", "No title"),
+                        "author": ", ".join([author["creator"] for author in record.get("creators", [])]),
+                        "publishedAt": record.get("publicationDate", "No date"),
+                        "url": record.get("url", [{"value": "No URL"}])[0]["value"],
+                        "abstract": {
+                            "h1": "Abstract",
+                            "p": record.get("abstract", "No abstract")
+                        },
+                        "journal": record.get("publicationName", "Springer")
+                    }
+                    papers.append(paper)
+                    if len(papers) >= max_results:
+                        break
 
-            start += rows
-        else:
-            print(f"❌️ Failed to fetch articles from Springer. Status code: {response.status_code}")
-            break
+                start += rows
+                logger.debug(f"📥 Fetched {len(papers)} papers so far")
+            else:
+                logger.error(f"❌ Failed to fetch articles from Springer. Status code: {response.status_code}")
+                break
 
-    return papers
+        logger.info(f"✅ Successfully fetched {len(papers)} papers from Springer")
+        return papers
+    
+    except Exception as e:
+        logger.error(f"🔥 Critical error fetching papers: {str(e)}")
+        return []
 
 def store_papers(papers):
     """
     Stores scraped scientific articles in MongoDB with the new data structure.
     """
-    formatted_papers = []
+    try:
+        formatted_papers = []
+        duplicates = 0
 
-    for paper in papers:
-        if not papers_collection.find_one({"title": paper["title"]}):
-            formatted_papers.append(paper)
+        for paper in papers:
+            if not papers_collection.find_one({"title": paper["title"]}):
+                formatted_papers.append(paper)
+            else:
+                duplicates += 1
 
-    if formatted_papers:
-        papers_collection.insert_many(formatted_papers)
-        print(f"✅ Successfully inserted {len(formatted_papers)} papers into MongoDB.")
-    else:
-        print(f"⚠ No valid and unique papers to insert.")
+        if duplicates > 0:
+            logger.warning(f"⚠️ Found {duplicates} duplicate papers")
+
+        if formatted_papers:
+            papers_collection.insert_many(formatted_papers)
+            logger.info(f"📚 Successfully inserted {len(formatted_papers)} papers into MongoDB")
+        else:
+            logger.warning("📭 No valid and unique papers to insert")
+    
+    except Exception as e:
+        logger.error(f"🔥 Failed to store papers: {str(e)}")
