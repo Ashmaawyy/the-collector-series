@@ -17,7 +17,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('trend_collector.log')
+        logging.FileHandler('trend_collector.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)

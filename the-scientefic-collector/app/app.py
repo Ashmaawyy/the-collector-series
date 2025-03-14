@@ -14,7 +14,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('scientefic_collector.log')
+        logging.FileHandler('scientefic_collector.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
