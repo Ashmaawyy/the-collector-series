@@ -1,7 +1,6 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from dotenv import load_dotenv
 from models import fetch_stocks, store_stocks
 import logging
 
@@ -17,6 +16,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+from routes import *
+from models import *
 
 fetched_stocks = []
 
