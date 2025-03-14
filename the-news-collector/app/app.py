@@ -133,5 +133,5 @@ def search_news():
         return jsonify({"news": []})
 
 if __name__ == "__main__":
-    logger.info("🚀 News Collector starting on port 5000")
+    logger.info("🚀 The News Collector is starting on port 5000")
     app.run(debug=True, port=5000, host="0.0.0.0")
