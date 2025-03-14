@@ -1,14 +1,14 @@
+import logging
 from pymongo import MongoClient
-from datetime import datetime
 import requests
-import feedparser
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from keys.env
-load_dotenv('C:/Users/ALDEYAA/OneDrive - AL DEYAA MEDIA PRODUCTION/Documents/the-collector-series/keys.env')
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Get the API key from the environment variable
+# Load environment variables
+load_dotenv('keys.env')
 NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 
 # MongoDB Setup
@@ -26,13 +26,13 @@ def fetch_articles():
     if response.status_code == 200:
         articles = response.json().get("articles", [])
         if articles:
-            print(f"✅ Successfully fetched {len(articles)} articles from NewsAPI.")
+            logging.info(f"✅ Successfully fetched {len(articles)} articles from NewsAPI.")
             return articles
         else:
-            print("⚠ No articles found.")
+            logging.warning("⚠ No articles found.")
             return []
     else:
-        print(f"❌️ Failed to fetch articles from NewsAPI. Status code: {response.status_code}")
+        logging.error(f"❌ Failed to fetch articles from NewsAPI. Status code: {response.status_code}")
         return []
 
 def store_articles(articles):
@@ -40,7 +40,7 @@ def store_articles(articles):
     Stores news articles in MongoDB with the new data structure.
     """
     formatted_articles = []
-
+    
     for article in articles:
         if not news_collection.find_one({"title": article["title"], "publishedAt": article["publishedAt"]}):
             formatted_articles.append({
@@ -55,10 +55,9 @@ def store_articles(articles):
 
     if formatted_articles:
         news_collection.insert_many(formatted_articles)
-        print(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
+        logging.info(f"✅ Successfully inserted {len(formatted_articles)} articles into MongoDB.")
     else:
-        print(f"⚠ No valid and unique articles to insert.")
-
+        logging.warning("⚠ No valid and unique articles to insert.")
 
 def get_latest_headlines(limit=50):
     """
@@ -66,9 +65,10 @@ def get_latest_headlines(limit=50):
     Returns a list of structured articles sorted by published date.
     """
     latest_articles = list(
-        news_collection.find({}, {"_id": 0})  # Exclude MongoDB _id field
-        .sort("publishedAt", -1)  # Sort by latest published date
-        .limit(limit)  # Limit results
+        news_collection.find({}, {"_id": 0})
+        .sort("publishedAt", -1)
+        .limit(limit)
     )
-
+    
+    logging.info(f"📢 Retrieved {len(latest_articles)} latest articles from MongoDB.")
     return latest_articles
