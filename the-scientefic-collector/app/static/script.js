@@ -2,16 +2,26 @@ document.addEventListener("DOMContentLoaded", function () {
     // Theme Toggle
     const themeToggle = document.getElementById('theme-toggle');
     const applyTheme = (theme) => {
-      document.documentElement.classList.toggle('dark-mode', theme === 'dark');
-      localStorage.setItem('theme', theme);
+    document.documentElement.classList.toggle('dark-mode', theme === 'dark');
+    localStorage.setItem('theme', theme);
+    
+    // Update toggle state
+    themeToggle.checked = theme === 'dark';
+    
+    // Add smooth transition class
+    document.documentElement.classList.add('theme-transition');
+    setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition');
+    }, 300);
     };
-    
+
+    // Initial theme setup
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
     themeToggle.addEventListener('change', (e) => {
-      applyTheme(e.target.checked ? 'dark' : 'light');
+    applyTheme(e.target.checked ? 'dark' : 'light');
     });
-    
-    // Apply saved theme
-    applyTheme(localStorage.getItem('theme') || 'light');
     
     loadMorePapers()
 
