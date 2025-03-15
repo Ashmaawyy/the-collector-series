@@ -1,46 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Scientific Collector</title>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
-    <script defer src="https://kit.fontawesome.com/7b3b8f7d0d.js" crossorigin="anonymous"></script>
-    <script defer src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
     <header>
-        <div class="theme-switch">
-            <span class="icon sun">☀️</span>
-            <label class="switch">
-                <input type="checkbox" id="theme-toggle">
-                <span class="slider round"></span>
-            </label>
-            <span class="icon moon">🌙</span>
+        <div class="brand">
+            <i class="fas fa-microscope"></i>
+            <h1>The Scientific Collector</h1>
         </div>
-        <div class="search-container">
-            <input type="text" id="search-input" class="search-box" placeholder="Search papers...">
+        <div class="header-controls">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" class="search-box" placeholder="Search papers...">
+                <button class="filter-btn">
+                    <i class="fas fa-sliders-h"></i>
+                    Filters
+                </button>
+            </div>
+            <div class="theme-switch">
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
     </header>
-    
-    <section id="papers-container">
-        {% for paper in papers %}
-            <div class="paper-card small-paper">
-                <h2>{{ paper.title }}</h2>
-                <p><strong>Author:</strong> {{ paper.author }}</p>
-                <p><strong>Published At:</strong> {{ paper.publishedAt }}</p>
-                <p><strong>Journal:</strong> {{ paper.journal }}</p>
-                <div class="paper-abstract">
-                    <h1>{{ paper.abstract.h1 }}</h1>
-                    <p>{{ paper.abstract.p }}</p>
-                </div>
-                <a href="{{ paper.url }}" target="_blank">Read Full Paper</a>
-            </div>
-        {% endfor %}
-    </section>
-    <button id="back-to-top" class="back-to-top">⏫</button>
+
+    <main>
+        <section id="papers-container">
+            
+        </section>
+    </main>
+
+    <div class="toast-container"></div>
 </body>
 </html>

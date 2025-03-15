@@ -1,145 +1,167 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const toggleSwitch = document.getElementById("theme-toggle");
-    const body = document.body;
-    const backToTopBtn = document.getElementById("back-to-top");
-    const moonIcon = document.querySelector(".moon");
-    const sunIcon = document.querySelector(".sun");
-    const searchInput = document.getElementById("search-input");
-    const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
-
-    function applyTheme(theme) {
-        if (theme === "dark") {
-            body.classList.add("dark-mode");
-            header.classList.add("dark-header");
-            searchInput.classList.add("dark-search");
-            toggleSwitch.checked = true;
-            moonIcon.style.opacity = "1";
-            sunIcon.style.opacity = "0.3";
-        } else {
-            body.classList.remove("dark-mode");
-            header.classList.remove("dark-header");
-            searchInput.classList.remove("dark-search");
-            moonIcon.style.opacity = "0.3";
-            sunIcon.style.opacity = "1";
-        }
-    }
-
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const applyTheme = (theme) => {
+      document.documentElement.classList.toggle('dark-mode', theme === 'dark');
+      localStorage.setItem('theme', theme);
+    };
+    
+    themeToggle.addEventListener('change', (e) => {
+      applyTheme(e.target.checked ? 'dark' : 'light');
+    });
+    
     // Apply saved theme
-    applyTheme(localStorage.getItem("theme") || "dark");
-
-    // Theme toggle functionality
-    toggleSwitch.addEventListener("change", function () {
-        const theme = this.checked ? "dark" : "light";
-        localStorage.setItem("theme", theme);
-        applyTheme(theme);
+    applyTheme(localStorage.getItem('theme') || 'light');
+  
+    // Collapsible Abstracts
+    document.querySelectorAll('.abstract-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const abstract = toggle.closest('.paper-card').querySelector('.paper-abstract');
+        abstract.classList.toggle('active');
+        toggle.querySelector('i').classList.toggle('fa-chevron-up');
+      });
     });
-
-    // Search functionality (Enter key)
-    function performSearch() {
-        const query = searchInput.value.trim();
-        if (query !== "") {
-            fetch(`/search_papers?q=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    const papersContainer = document.getElementById("papers-container");
-                    papersContainer.innerHTML = "";
-
-                    data.papers.forEach(paper => {
-                        const paperCard = document.createElement("div");
-                        paperCard.classList.add("paper-card", "small-paper");
-                        paperCard.innerHTML = `
-                            <h2>${paper.title}</h2>
-                            <p><strong>Author:</strong> ${paper.author}</p>
-                            <p><strong>Published At:</strong> ${paper.publishedAt}</p>
-                            <p><strong>Journal:</strong> ${paper.journal}</p>
-                            <div class="paper-abstract">
-                                <h1>${paper.abstract.h1}</h1>
-                                <p>${paper.abstract.p}</p>
-                            </div>
-                            <a href="${paper.url}" target="_blank">Read Full Paper</a>
-                        `;
-                        papersContainer.appendChild(paperCard);
-                    });
-                });
-        }
-    }
-
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            performSearch();
-        }
-    });
-
-    let page = 1;
-    let loading = false;
-
-    async function loadMorePapers() {
-        if (loading) return;
-        loading = true;
-
-        const response = await fetch(`/load_more_papers?page=${page}`);
+  
+    // Search with Debounce
+    const searchInput = document.getElementById('search-input');
+    const debounceSearch = debounce(async (query) => {
+      try {
+        const response = await fetch(`/search_papers?q=${encodeURIComponent(query)}`);
         const data = await response.json();
+        updatePapersContainer(data.papers);
+      } catch (error) {
+        showToast('Error searching papers', 'error');
+      }
+    }, 300);
+  
+    searchInput.addEventListener('input', (e) => debounceSearch(e.target.value));
+  
+    // Infinite Scroll
+    let isLoading = false;
+    let currentPage = 1;
+    let hasMore = true;
+    
+    async function loadMorePapers() {
+        if (isLoading || !hasMore) return;
+        
+        try {
+            isLoading = true;
+            showLoadingIndicator();
 
-        if (data.papers.length > 0) {
-            const papersContainer = document.getElementById("papers-container");
-            data.papers.forEach(paper => {
-                const paperCard = document.createElement("div");
-                paperCard.classList.add("paper-card", "small-paper");
-                paperCard.style.opacity = "0";
+            const response = await fetch(
+                `/api/load-more-papers?page=${currentPage}&q=${encodeURIComponent(searchInput.value.trim())}`
+            );
 
-                paperCard.innerHTML = `
-                    <h2>${paper.title}</h2>
-                    <p><strong>Author:</strong> ${paper.author}</p>
-                    <p><strong>Published At:</strong> ${paper.publishedAt}</p>
-                    <p><strong>Journal:</strong> ${paper.journal}</p>
-                    <div class="paper-abstract">
-                        <h1>${paper.abstract.h1}</h1>
-                        <p>${paper.abstract.p}</p>
-                    </div>
-                    <a href="${paper.url}" target="_blank">Read Full Paper</a>
-                `;
+            if (!response.ok) throw new Error(response.statusText);
+            
+            const { papers, next_page } = await response.json();
+            
+            if (papers.length === 0) {
+                hasMore = false;
+                showMessage('No more papers to load');
+                return;
+            }
 
-                papersContainer.appendChild(paperCard);
-                setTimeout(() => paperCard.style.opacity = "1", 200);
-            });
+            appendPapers(papers);
+            currentPage = next_page || currentPage + 1;
 
-            page++;
-            loading = false;
+        } catch (error) {
+            hasMore = false;
+            showMessage(`Error loading papers: ${error.message}`, 'error');
+        } finally {
+            isLoading = false;
+            hideLoadingIndicator();
         }
     }
 
-    window.addEventListener("scroll", function () {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    window.addEventListener('scroll', () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        const scrollThreshold = 100;
+        
+        if (scrollTop + clientHeight >= scrollHeight - scrollThreshold) {
             loadMorePapers();
         }
-
-        if (window.scrollY > 300) {
-            backToTopBtn.style.display = "block";
-        } else {
-            backToTopBtn.style.display = "none";
-        }
     });
+    
+    function appendPapers(papers) {
+        const container = document.getElementById('papers-container');
+        papers.forEach(paper => {
+            const card = createPaperCard(paper);
+            container.appendChild(card);
+            fadeInElement(card);
+        });
+    }
+    
+    function createPaperCard(paper) {
+        const card = document.createElement('div');
+        card.className = 'paper-card';
+        card.innerHTML = `
+            <div class="paper-header">
+                <h2>${paper.title}</h2>
+                <div class="paper-actions">
+                    <button class="icon-btn"><i class="far fa-bookmark"></i></button>
+                    <button class="icon-btn"><i class="fas fa-share"></i></button>
+                </div>
+            </div>
+            <div class="paper-meta">
+                ${paper.authors.map(a => `<span><i class="fas fa-user"></i> ${a}</span>`).join('')}
+                <span><i class="fas fa-calendar"></i> ${paper.publication_date}</span>
+                <span><i class="fas fa-book"></i> ${paper.journal}</span>
+            </div>
+            <div class="paper-tags">
+                ${paper.subjects.map(s => `<span class="tag">${s}</span>`).join('')}
+            </div>
+            <div class="paper-footer">
+                <a href="${paper.url}" target="_blank" class="paper-link">
+                    Read Full Paper <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        `;
+        return card;
+    }
+  
+    // Helper Functions
+    function debounce(fn, delay) {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+      };
+    }
 
-    backToTopBtn.addEventListener("click", function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    function fadeInElement(element) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        requestAnimationFrame(() => {
+            element.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        });
+    }
+  
+    function updatePapersContainer(papers) {
+      const container = document.getElementById('papers-container');
+      container.innerHTML = '';
+      appendPapers(papers);
+    }
+  
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-    // Pull to refresh functionality
-    let touchStartY = 0;
-    let touchEndY = 0;
+    function showLoadingIndicator() {
+        const loader = document.createElement('div');
+        loader.id = 'loading-indicator';
+        loader.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading more papers...';
+        document.body.appendChild(loader);
+    }
 
-    window.addEventListener("touchstart", function (event) {
-        touchStartY = event.touches[0].clientY;
-    });
-
-    window.addEventListener("touchend", function (event) {
-        touchEndY = event.changedTouches[0].clientY;
-        if (touchEndY - touchStartY > 100) { // Adjust the threshold as needed
-            location.reload();
-        }
-    });
-
-    // Initial load
-    loadMorePapers();
-});
+    function hideLoadingIndicator() {
+        const loader = document.getElementById('loading-indicator');
+        if (loader) loader.remove();
+    }
+  });
