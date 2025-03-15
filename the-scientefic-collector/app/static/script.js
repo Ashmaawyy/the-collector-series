@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Apply saved theme
     applyTheme(localStorage.getItem('theme') || 'light');
-  
+    
+    loadMorePapers()
+
     // Collapsible Abstracts
     document.querySelectorAll('.abstract-toggle').forEach(toggle => {
       toggle.addEventListener('click', () => {
@@ -76,48 +78,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-        const scrollThreshold = 100;
+        const threshold = 100;
         
-        if (scrollTop + clientHeight >= scrollHeight - scrollThreshold) {
+        console.log(
+            `Scroll Position: ${Math.round(scrollTop + clientHeight)}/${Math.round(scrollHeight - threshold)}`,
+            `Trigger: ${scrollTop + clientHeight >= scrollHeight - threshold}`
+        );
+    
+        if (!isLoading && hasMore && (scrollTop + clientHeight >= scrollHeight - threshold)) {
+            console.log('--- Triggering paper load ---');
             loadMorePapers();
         }
     });
     
     function appendPapers(papers) {
         const container = document.getElementById('papers-container');
+        if (!container) {
+            console.error('Papers container element not found!');
+            return;
+        }
+    
+        if (papers.length === 0) {
+            console.log('No papers to append');
+            return;
+        }
+    
         papers.forEach(paper => {
             const card = createPaperCard(paper);
-            container.appendChild(card);
-            fadeInElement(card);
+            if (card) {
+                container.appendChild(card);
+                fadeInElement(card);
+                console.log('Appended paper:', paper.title); // Debug log
+            }
         });
     }
     
+        // 💡 Fixed paper card creation
     function createPaperCard(paper) {
-        const card = document.createElement('div');
-        card.className = 'paper-card';
-        card.innerHTML = `
-            <div class="paper-header">
-                <h2>${paper.title}</h2>
-                <div class="paper-actions">
-                    <button class="icon-btn"><i class="far fa-bookmark"></i></button>
-                    <button class="icon-btn"><i class="fas fa-share"></i></button>
+        try {
+            const card = document.createElement('div');
+            card.className = 'paper-card';
+
+            // 💡 Safely handle array fields
+            const authors = Array.isArray(paper.authors) ? paper.authors : [paper.authors || 'Unknown Author'];
+            const subjects = Array.isArray(paper.subjects) ? paper.subjects : [paper.subjects || 'Uncategorized'];
+
+            card.innerHTML = `
+                <div class="paper-header">
+                    <h2>${paper.title || 'Untitled Paper'}</h2>
+                    <div class="paper-actions">
+                        <button class="icon-btn"><i class="far fa-bookmark"></i></button>
+                        <button class="icon-btn"><i class="fas fa-share"></i></button>
+                    </div>
                 </div>
-            </div>
-            <div class="paper-meta">
-                ${paper.authors.map(a => `<span><i class="fas fa-user"></i> ${a}</span>`).join('')}
-                <span><i class="fas fa-calendar"></i> ${paper.publication_date}</span>
-                <span><i class="fas fa-book"></i> ${paper.journal}</span>
-            </div>
-            <div class="paper-tags">
-                ${paper.subjects.map(s => `<span class="tag">${s}</span>`).join('')}
-            </div>
-            <div class="paper-footer">
-                <a href="${paper.url}" target="_blank" class="paper-link">
-                    Read Full Paper <i class="fas fa-external-link-alt"></i>
-                </a>
-            </div>
-        `;
-        return card;
+                <div class="paper-meta">
+                    ${authors.map(a => `<span><i class="fas fa-user"></i> ${a}</span>`).join('')}
+                    <span><i class="fas fa-calendar"></i> ${paper.publication_date || 'Date not available'}</span>
+                    <span><i class="fas fa-book"></i> ${paper.journal || 'Unknown Journal'}</span>
+                </div>
+                <div class="paper-tags">
+                    ${subjects.map(s => `<span class="tag">${s}</span>`).join('')}
+                </div>
+                <div class="paper-footer">
+                    <a href="${paper.url || '#'}" target="_blank" class="paper-link">
+                        Read Full Paper <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            `;
+            return card;
+        } catch (error) {
+            console.error('Error creating paper card:', error);
+            return document.createElement('div'); // Return empty div as fallback
+        }
     }
   
     // Helper Functions
@@ -129,13 +161,13 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
 
+    // 💡 Fixed fade-in animation
     function fadeInElement(element) {
         element.style.opacity = '0';
-        element.style.transform = 'translateY(20px)';
+        element.style.display = 'block'; // Ensure element is visible
         requestAnimationFrame(() => {
-            element.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+            element.style.transition = 'opacity 0.3s ease-out';
             element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
         });
     }
   

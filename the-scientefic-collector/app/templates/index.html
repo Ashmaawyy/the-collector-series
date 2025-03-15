@@ -33,8 +33,40 @@
     </header>
 
     <main>
-        <section id="papers-container">
-            
+        <section id="papers-container" class="paper-grid">
+            {% if papers %}
+            {% for paper in papers %}
+            <div class="paper-card">
+                <h2>{{ paper.title }}</h2>
+                <div class="paper-meta">
+                    <span><i class="fas fa-users"></i> {{ paper.authors|join(', ') }}</span>
+                    <span><i class="fas fa-calendar-alt"></i> {{ paper.publication_date }}</span>
+                    <span><i class="fas fa-book-open"></i> {{ paper.journal }}</span>
+                </div>
+                <div class="paper-tags">
+                    {% for subject in paper.subjects %}
+                    <span class="tag">{{ subject }}</span>
+                    {% endfor %}
+                </div>
+                <div class="abstract-toggle">
+                    <i class="fas fa-chevron-down"></i>
+                    <span>Abstract</span>
+                </div>
+                <div class="paper-abstract">
+                    <p>{{ paper.abstract }}</p>
+                </div>
+                <a href="{{ paper.url }}" target="_blank" class="paper-link">
+                    Read Full Paper <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="no-papers">
+                <i class="fas fa-microscope"></i>
+                <h3>No papers found in the database</h3>
+                <p>Try running the fetch job or check MongoDB connection</p>
+            </div>
+            {% endif %}
         </section>
     </main>
 
