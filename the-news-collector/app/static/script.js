@@ -70,6 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
+    let seenUrls = new Set(); // Track loaded articles
+
     async function loadMoreNews() {
         if (loading) return;
         loading = true;
@@ -80,26 +82,26 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.news.length > 0) {
             const newsContainer = document.getElementById("news-container");
             data.news.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card", "small-news");
-                newsCard.style.opacity = "0";
-
-                newsCard.innerHTML = `
-                    <h2>${article.title}</h2>
-                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                    <p><strong>Published:</strong> ${article.publishedAt}</p>
-                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
-                `;
-
-                newsContainer.appendChild(newsCard);
-                setTimeout(() => newsCard.style.opacity = "1", 200);
+                if (!seenUrls.has(article.url)) { // Check for duplicates
+                    seenUrls.add(article.url);
+                    const newsCard = document.createElement("div");
+                    newsCard.classList.add("news-card", "small-news");
+                    newsCard.innerHTML = `
+                        <h2>${article.title}</h2>
+                        <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
+                        <p><strong>Published:</strong> ${article.publishedAt}</p>
+                        <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
+                        <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                    `;
+                    newsContainer.appendChild(newsCard);
+                }
             });
 
             page++;
             loading = false;
         }
     }
+
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
