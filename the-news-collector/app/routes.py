@@ -6,29 +6,30 @@ import re
 
 logger = logging.getLogger(__name__)
 
-PAGE_SIZE = 10  # Number of articles per page
+PAGE_SIZE = 5  # Number of articles per page
 
 @app.route("/")
 def home():
     """
     Fetches the latest news articles from MongoDB with pagination, search, and category filtering.
     """
-    query = request.args.get("q", "").strip().lower()
-    category = request.args.get("category", "").strip().lower()
-    page = int(request.args.get("page", 1))
+    query = request.args.get("q", "").strip().lower()  # Get search query
+    category = request.args.get("category", "").strip().lower()  # Get category filter
+    page = int(request.args.get("page", 1))  # Get current page, default to 1
 
-    all_articles = get_latest_headlines(limit=50)
+    all_articles = get_latest_headlines(limit=50)  # Fetch up to 50 articles
     filtered_articles = []
 
+    # Filter articles based on search or category
     for article in all_articles:
-        if article["title"] and article["urlToImage"]:  # Ensure title & image exist
-            headline_match = query in article["title"].lower() if query else True
-            summary_match = query in article.get("summary", "").lower() if query else True
-            category_match = article["category"].lower() == category if category else True
+        headline_match = query in article["headline"].lower() if query else True
+        summary_match = query in article["summary"].lower() if query else True
+        category_match = article["category"].lower() == category if category else True
 
-            if (headline_match or summary_match) and category_match:
-                filtered_articles.append(article)
+        if (headline_match or summary_match) and category_match:
+            filtered_articles.append(article)
 
+    # Pagination logic
     total_articles = len(filtered_articles)
     start_idx = (page - 1) * PAGE_SIZE
     end_idx = start_idx + PAGE_SIZE
@@ -49,7 +50,7 @@ def update_news():
         logger.error(f"❌ Manual update failed: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-"""@app.route('/load_latest_news')
+@app.route('/load_latest_news')
 def load_latest_news():
     logger.debug("📥 Loading latest news")
     latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
@@ -66,7 +67,7 @@ def load_latest_news():
     ]
 
     return jsonify({"news": news_data})
-"""
+
 @app.route('/load_more_news')
 def load_more_news():
     page = request.args.get("page", 1, type=int)
