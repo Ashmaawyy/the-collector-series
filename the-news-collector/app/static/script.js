@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
+    const loadingSpinner = document.getElementById("loading-spinner");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -34,51 +35,48 @@ document.addEventListener("DOMContentLoaded", function () {
         applyTheme(theme);
     });
 
-    // Initialize stocks-container with initial stock data
-    const initialStocks = JSON.parse('{{ stocks | tojson | safe }}');
-    const stocksContainer = document.getElementById("stocks-container");
-    
-    stocksContainer.innerHTML = "";
+    // Show loading spinner
+    function showLoadingSpinner() {
+        loadingSpinner.style.display = "flex";
+    }
 
-    initialStocks.forEach(stock => {
-        const stockCard = document.createElement("div");
-        stockCard.classList.add("stock-card", "small-stock");
-        stockCard.innerHTML = `
-            <h2>${stock.symbol}</h2>
-            <p>Timestamp: ${stock.timestamp}</p>
-            <p>Open: ${stock.open}</p>
-            <p>High: ${stock.high}</p>
-            <p>Low: ${stock.low}</p>
-            <p>Close: ${stock.close}</p>
-            <p>Volume: ${stock.volume}</p>
-        `;
-        stocksContainer.appendChild(stockCard);
-    });
+    // Hide loading spinner
+    function hideLoadingSpinner() {
+        loadingSpinner.style.display = "none";
+    }
 
     // Search functionality (Enter key)
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
-            fetch(`/search_stocks?q=${query}`)
+            showLoadingSpinner();
+            fetch(`/search_news?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
-                    const stocksContainer = document.getElementById("stocks-container");
-                    stocksContainer.innerHTML = "";
+                    const newsContainer = document.getElementById("news-container");
+                    newsContainer.innerHTML = "";
 
-                    data.stocks.forEach(stock => {
-                        const stockCard = document.createElement("div");
-                        stockCard.classList.add("stock-card", "small-stock");
-                        stockCard.innerHTML = `
-                            <h2>${stock.symbol}</h2>
-                            <p>Timestamp: ${stock.timestamp}</p>
-                            <p>Open: ${stock.open}</p>
-                            <p>High: ${stock.high}</p>
-                            <p>Low: ${stock.low}</p>
-                            <p>Close: ${stock.close}</p>
-                            <p>Volume: ${stock.volume}</p>
+                    data.news.forEach(article => {
+                        const newsCard = document.createElement("div");
+                        newsCard.classList.add("news-card", "small-news");
+                        newsCard.innerHTML = `
+                            <h2>${article.title}</h2>
+                            <div class="news-meta">
+                                <span><i class="fas fa-user"></i> ${article.author}</span>
+                                <span><i class="fas fa-calendar-alt"></i> ${article.publishedAt}</span>
+                            </div>
+                            <p>${article.summary}</p>
+                            <a href="${article.url}" target="_blank" class="news-link">
+                                Read Full Article <i class="fas fa-external-link-alt"></i>
+                            </a>
                         `;
-                        stocksContainer.appendChild(stockCard);
+                        newsContainer.appendChild(newsCard);
                     });
+                    hideLoadingSpinner();
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
+                    hideLoadingSpinner();
                 });
         }
     }
@@ -92,42 +90,47 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
-    async function loadMoreStocks() {
+    async function loadMoreNews() {
         if (loading) return;
         loading = true;
+        showLoadingSpinner();
 
-        const response = await fetch(`/load_more_stocks?page=${page}`);
+        const response = await fetch(`/load_more_news?page=${page}`);
         const data = await response.json();
 
-        if (data.stocks.length > 0) {
-            const stocksContainer = document.getElementById("stocks-container");
-            data.stocks.forEach(stock => {
-                const stockCard = document.createElement("div");
-                stockCard.classList.add("stock-card", "small-stock");
-                stockCard.style.opacity = "0";
+        if (data.news.length > 0) {
+            const newsContainer = document.getElementById("news-container");
+            data.news.forEach(article => {
+                const newsCard = document.createElement("div");
+                newsCard.classList.add("news-card", "small-news");
+                newsCard.style.opacity = "0";
 
-                stockCard.innerHTML = `
-                    <h2>${stock.symbol}</h2>
-                    <p>Timestamp: ${stock.timestamp}</p>
-                    <p>Open: ${stock.open}</p>
-                    <p>High: ${stock.high}</p>
-                    <p>Low: ${stock.low}</p>
-                    <p>Close: ${stock.close}</p>
-                    <p>Volume: ${stock.volume}</p>
+                newsCard.innerHTML = `
+                    <h2>${article.title || "No Title"}</h2>
+                    <div class="news-meta">
+                        <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
+                        <span><i class="fas fa-calendar-alt"></i> ${article.publishedAt}</span>
+                    </div>
+                    <p>${article.summary || "No summary available."}</p>
+                    ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
+                    <a href="${article.url}" target="_blank" class="news-link">
+                        Read Full Article <i class="fas fa-external-link-alt"></i>
+                    </a>
                 `;
 
-                stocksContainer.appendChild(stockCard);
-                setTimeout(() => stockCard.style.opacity = "1", 200);
+                newsContainer.appendChild(newsCard);
+                setTimeout(() => newsCard.style.opacity = "1", 200);
             });
 
             page++;
             loading = false;
+            hideLoadingSpinner();
         }
     }
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-            loadMoreStocks();
+            loadMoreNews();
         }
 
         if (window.scrollY > 300) {
@@ -155,4 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location.reload();
         }
     });
+
+    // Initial load
+    loadMoreNews();
 });
