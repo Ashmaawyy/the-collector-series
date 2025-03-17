@@ -23,10 +23,9 @@ def home():
     # Filter articles based on search or category
     for article in all_articles:
         headline_match = query in article["headline"].lower() if query else True
-        summary_match = query in article["summary"].lower() if query else True
         category_match = article["category"].lower() == category if category else True
 
-        if (headline_match or summary_match) and category_match:
+        if headline_match and category_match:
             filtered_articles.append(article)
 
     # Pagination logic
@@ -50,7 +49,7 @@ def update_news():
         logger.error(f"❌ Manual update failed: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/load_latest_news')
+"""@app.route('/load_latest_news')
 def load_latest_news():
     logger.debug("📥 Loading latest news")
     latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
@@ -68,12 +67,12 @@ def load_latest_news():
     ]
 
     return jsonify({"news": news_data})
-
+"""
 @app.route('/load_more_news')
 def load_more_news():
     page = request.args.get("page", 1, type=int)
     logger.info(f"📖 Loading more news (page {page})")
-    per_page = 10
+    per_page = 5
 
     news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
 
@@ -85,7 +84,6 @@ def load_more_news():
             "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
             "urlToImage": item.get("urlToImage", ""),
-            "summary": item.get("summary", "No summary available.")
         } for item in news
     ]
 
@@ -108,7 +106,6 @@ def search_news():
                 "publishedAt": item.get("publishedAt", ""),
                 "url": item["url"],
                 "urlToImage": item.get("urlToImage", ""),
-                "summary": item.get("summary", "No summary available.")
             } for item in news
         ]
         return jsonify({"news": news_data})

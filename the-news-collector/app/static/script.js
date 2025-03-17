@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
                                 <span><i class="fas fa-calendar-alt"></i> ${new Date(article.publishedAt).toLocaleDateString()}</span>
                             </div>
-                            <p>${article.summary || "No summary available."}</p>
                             ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
                             <a href="${article.url}" target="_blank" class="news-link">
                                 Read Full Article <i class="fas fa-external-link-alt"></i>
@@ -114,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
                             <span><i class="fas fa-calendar-alt"></i> ${new Date(article.publishedAt).toLocaleDateString()}</span>
                         </div>
-                        <p>${article.summary || "No summary available."}</p>
                         ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
                         <a href="${article.url}" target="_blank" class="news-link">
                             Read Full Article <i class="fas fa-external-link-alt"></i>
