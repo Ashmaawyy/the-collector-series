@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
+    const loadingSpinner = document.getElementById("loading-spinner");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -35,10 +35,21 @@ document.addEventListener("DOMContentLoaded", function () {
         applyTheme(theme);
     });
 
+    // Show loading spinner
+    function showLoadingSpinner() {
+        loadingSpinner.style.display = "flex";
+    }
+
+    // Hide loading spinner
+    function hideLoadingSpinner() {
+        loadingSpinner.style.display = "none";
+    }
+
     // Search functionality (Enter key)
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
+            showLoadingSpinner();
             fetch(`/search_news?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
@@ -57,6 +68,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         `;
                         newsContainer.appendChild(newsCard);
                     });
+                    hideLoadingSpinner();
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
+                    hideLoadingSpinner();
                 });
         }
     }
@@ -73,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadMoreNews() {
         if (loading) return;
         loading = true;
+        showLoadingSpinner();
 
         const response = await fetch(`/load_more_news?page=${page}`);
         const data = await response.json();
@@ -98,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             page++;
             loading = false;
+            hideLoadingSpinner();
         }
     }
 
