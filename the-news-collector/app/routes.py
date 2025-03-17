@@ -13,23 +13,22 @@ def home():
     """
     Fetches the latest news articles from MongoDB with pagination, search, and category filtering.
     """
-    query = request.args.get("q", "").strip().lower()  # Get search query
-    category = request.args.get("category", "").strip().lower()  # Get category filter
-    page = int(request.args.get("page", 1))  # Get current page, default to 1
+    query = request.args.get("q", "").strip().lower()
+    category = request.args.get("category", "").strip().lower()
+    page = int(request.args.get("page", 1))
 
-    all_articles = get_latest_headlines(limit=50)  # Fetch up to 50 articles
+    all_articles = get_latest_headlines(limit=50)
     filtered_articles = []
 
-    # Filter articles based on search or category
     for article in all_articles:
-        headline_match = query in article["headline"].lower() if query else True
-        summary_match = query in article["summary"].lower() if query else True
-        category_match = article["category"].lower() == category if category else True
+        if article["title"] and article["urlToImage"]:  # Ensure title & image exist
+            headline_match = query in article["title"].lower() if query else True
+            summary_match = query in article.get("summary", "").lower() if query else True
+            category_match = article["category"].lower() == category if category else True
 
-        if (headline_match or summary_match) and category_match:
-            filtered_articles.append(article)
+            if (headline_match or summary_match) and category_match:
+                filtered_articles.append(article)
 
-    # Pagination logic
     total_articles = len(filtered_articles)
     start_idx = (page - 1) * PAGE_SIZE
     end_idx = start_idx + PAGE_SIZE
@@ -50,25 +49,24 @@ def update_news():
         logger.error(f"❌ Manual update failed: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/load_latest_news')
+"""@app.route('/load_latest_news')
 def load_latest_news():
     logger.debug("📥 Loading latest news")
     latest_news = list(news_collection.find().sort("publishedAt", -1).limit(5))
 
     news_data = [
         {
-            "title": item.get("title", "No Title"),
-            "source": item.get("source", "Unknown"),
+            "title": item["title"],
+            "source": item["source"],
             "author": item.get("author", "N/A"),
             "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", ""),
-            "summary": item.get("summary", "No summary available.")
+            "urlToImage": item.get("urlToImage", "")
         } for item in latest_news
     ]
 
     return jsonify({"news": news_data})
-
+"""
 @app.route('/load_more_news')
 def load_more_news():
     page = request.args.get("page", 1, type=int)
@@ -79,13 +77,12 @@ def load_more_news():
 
     news_data = [
         {
-            "title": item.get("title", "No Title"),
-            "source": item.get("source", "Unknown"),
+            "title": item["title"],
+            "source": item["source"],
             "author": item.get("author", "N/A"),
             "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", ""),
-            "summary": item.get("summary", "No summary available.")
+            "urlToImage": item.get("urlToImage", "")
         } for item in news
     ]
 
@@ -102,13 +99,12 @@ def search_news():
         logger.info(f"🔎 Found {len(news)} results for '{query}'")
         news_data = [
             {
-                "title": item.get("title", "No Title"),
-                "source": item.get("source", "Unknown"),
+                "title": item["title"],
+                "source": item["source"],
                 "author": item.get("author", "N/A"),
                 "publishedAt": item.get("publishedAt", ""),
                 "url": item["url"],
-                "urlToImage": item.get("urlToImage", ""),
-                "summary": item.get("summary", "No summary available.")
+                "urlToImage": item.get("urlToImage", "")
             } for item in news
         ]
         return jsonify({"news": news_data})
