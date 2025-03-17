@@ -61,14 +61,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         newsCard.classList.add("news-card", "small-news");
                         newsCard.innerHTML = `
                             <h2>${article.title}</h2>
-                            <div class="news-meta">
-                                <span><i class="fas fa-user"></i> ${article.author}</span>
-                                <span><i class="fas fa-calendar-alt"></i> ${article.publishedAt}</span>
-                            </div>
-                            <p>${article.summary}</p>
-                            <a href="${article.url}" target="_blank" class="news-link">
-                                Read Full Article <i class="fas fa-external-link-alt"></i>
-                            </a>
+                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
+                            <p><strong>Published:</strong> ${article.publishedAt}</p>
+                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
+                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
                         `;
                         newsContainer.appendChild(newsCard);
                     });
@@ -106,16 +102,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 newsCard.style.opacity = "0";
 
                 newsCard.innerHTML = `
-                    <h2>${article.title || "No Title"}</h2>
-                    <div class="news-meta">
-                        <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
-                        <span><i class="fas fa-calendar-alt"></i> ${article.publishedAt}</span>
-                    </div>
-                    <p>${article.summary || "No summary available."}</p>
-                    ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
-                    <a href="${article.url}" target="_blank" class="news-link">
-                        Read Full Article <i class="fas fa-external-link-alt"></i>
-                    </a>
+                    <h2>${article.title}</h2>
+                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
+                    <p><strong>Published:</strong> ${article.publishedAt}</p>
+                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
+                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
                 `;
 
                 newsContainer.appendChild(newsCard);
