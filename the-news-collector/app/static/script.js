@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const loadingSpinner = document.getElementById("loading-spinner");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -35,44 +34,51 @@ document.addEventListener("DOMContentLoaded", function () {
         applyTheme(theme);
     });
 
-    // Show loading spinner
-    function showLoadingSpinner() {
-        loadingSpinner.style.display = "flex";
-    }
+    // Initialize stocks-container with initial stock data
+    const initialStocks = JSON.parse('{{ stocks | tojson | safe }}');
+    const stocksContainer = document.getElementById("stocks-container");
+    
+    stocksContainer.innerHTML = "";
 
-    // Hide loading spinner
-    function hideLoadingSpinner() {
-        loadingSpinner.style.display = "none";
-    }
+    initialStocks.forEach(stock => {
+        const stockCard = document.createElement("div");
+        stockCard.classList.add("stock-card", "small-stock");
+        stockCard.innerHTML = `
+            <h2>${stock.symbol}</h2>
+            <p>Timestamp: ${stock.timestamp}</p>
+            <p>Open: ${stock.open}</p>
+            <p>High: ${stock.high}</p>
+            <p>Low: ${stock.low}</p>
+            <p>Close: ${stock.close}</p>
+            <p>Volume: ${stock.volume}</p>
+        `;
+        stocksContainer.appendChild(stockCard);
+    });
 
     // Search functionality (Enter key)
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
-            showLoadingSpinner();
-            fetch(`/search_news?q=${query}`)
+            fetch(`/search_stocks?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
-                    const newsContainer = document.getElementById("news-container");
-                    newsContainer.innerHTML = "";
+                    const stocksContainer = document.getElementById("stocks-container");
+                    stocksContainer.innerHTML = "";
 
-                    data.news.forEach(article => {
-                        const newsCard = document.createElement("div");
-                        newsCard.classList.add("news-card", "small-news");
-                        newsCard.innerHTML = `
-                            <h2>${article.title}</h2>
-                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                            <p><strong>Published:</strong> ${article.publishedAt}</p>
-                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                    data.stocks.forEach(stock => {
+                        const stockCard = document.createElement("div");
+                        stockCard.classList.add("stock-card", "small-stock");
+                        stockCard.innerHTML = `
+                            <h2>${stock.symbol}</h2>
+                            <p>Timestamp: ${stock.timestamp}</p>
+                            <p>Open: ${stock.open}</p>
+                            <p>High: ${stock.high}</p>
+                            <p>Low: ${stock.low}</p>
+                            <p>Close: ${stock.close}</p>
+                            <p>Volume: ${stock.volume}</p>
                         `;
-                        newsContainer.appendChild(newsCard);
+                        stocksContainer.appendChild(stockCard);
                     });
-                    hideLoadingSpinner();
-                })
-                .catch(error => {
-                    console.error("Error fetching news:", error);
-                    hideLoadingSpinner();
                 });
         }
     }
@@ -86,42 +92,42 @@ document.addEventListener("DOMContentLoaded", function () {
     let page = 1;
     let loading = false;
 
-    async function loadMoreNews() {
+    async function loadMoreStocks() {
         if (loading) return;
         loading = true;
-        showLoadingSpinner();
 
-        const response = await fetch(`/load_more_news?page=${page}`);
+        const response = await fetch(`/load_more_stocks?page=${page}`);
         const data = await response.json();
 
-        if (data.news.length > 0) {
-            const newsContainer = document.getElementById("news-container");
-            data.news.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card", "small-news");
-                newsCard.style.opacity = "0";
+        if (data.stocks.length > 0) {
+            const stocksContainer = document.getElementById("stocks-container");
+            data.stocks.forEach(stock => {
+                const stockCard = document.createElement("div");
+                stockCard.classList.add("stock-card", "small-stock");
+                stockCard.style.opacity = "0";
 
-                newsCard.innerHTML = `
-                    <h2>${article.title}</h2>
-                    <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                    <p><strong>Published:</strong> ${article.publishedAt}</p>
-                    <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                    <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                stockCard.innerHTML = `
+                    <h2>${stock.symbol}</h2>
+                    <p>Timestamp: ${stock.timestamp}</p>
+                    <p>Open: ${stock.open}</p>
+                    <p>High: ${stock.high}</p>
+                    <p>Low: ${stock.low}</p>
+                    <p>Close: ${stock.close}</p>
+                    <p>Volume: ${stock.volume}</p>
                 `;
 
-                newsContainer.appendChild(newsCard);
-                setTimeout(() => newsCard.style.opacity = "1", 200);
+                stocksContainer.appendChild(stockCard);
+                setTimeout(() => stockCard.style.opacity = "1", 200);
             });
 
             page++;
             loading = false;
-            hideLoadingSpinner();
         }
     }
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-            loadMoreNews();
+            loadMoreStocks();
         }
 
         if (window.scrollY > 300) {
@@ -149,7 +155,4 @@ document.addEventListener("DOMContentLoaded", function () {
             location.reload();
         }
     });
-
-    // Initial load
-    loadMoreNews();
 });
