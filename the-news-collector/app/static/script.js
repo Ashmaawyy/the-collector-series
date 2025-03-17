@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sunIcon = document.querySelector(".sun");
     const searchInput = document.getElementById("search-input");
     const header = document.querySelector("header");
-    const searchContainer = document.querySelector(".search-container");
+    const loadingSpinner = document.getElementById("loading-spinner");
 
     function applyTheme(theme) {
         if (theme === "dark") {
@@ -35,10 +35,21 @@ document.addEventListener("DOMContentLoaded", function () {
         applyTheme(theme);
     });
 
+    // Show loading spinner
+    function showLoadingSpinner() {
+        loadingSpinner.style.display = "flex";
+    }
+
+    // Hide loading spinner
+    function hideLoadingSpinner() {
+        loadingSpinner.style.display = "none";
+    }
+
     // Search functionality (Enter key)
     function performSearch() {
         const query = searchInput.value.trim();
         if (query !== "") {
+            showLoadingSpinner();
             fetch(`/search_news?q=${query}`)
                 .then(response => response.json())
                 .then(data => {
@@ -49,14 +60,24 @@ document.addEventListener("DOMContentLoaded", function () {
                         const newsCard = document.createElement("div");
                         newsCard.classList.add("news-card", "small-news");
                         newsCard.innerHTML = `
-                            <h2>${article.title}</h2>
-                            <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                            <p><strong>Published:</strong> ${article.publishedAt}</p>
-                            <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                            <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                            <h2>${article.title || "No Title"}</h2>
+                            <div class="news-meta">
+                                <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
+                                <span><i class="fas fa-calendar-alt"></i> ${new Date(article.publishedAt).toLocaleDateString()}</span>
+                            </div>
+                            <p>${article.summary || "No summary available."}</p>
+                            ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
+                            <a href="${article.url}" target="_blank" class="news-link">
+                                Read Full Article <i class="fas fa-external-link-alt"></i>
+                            </a>
                         `;
                         newsContainer.appendChild(newsCard);
                     });
+                    hideLoadingSpinner();
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
+                    hideLoadingSpinner();
                 });
         }
     }
@@ -75,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadMoreNews() {
         if (loading) return;
         loading = true;
+        showLoadingSpinner();
 
         const response = await fetch(`/load_more_news?page=${page}`);
         const data = await response.json();
@@ -87,11 +109,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     const newsCard = document.createElement("div");
                     newsCard.classList.add("news-card", "small-news");
                     newsCard.innerHTML = `
-                        <h2>${article.title}</h2>
-                        <p><strong>Source:</strong> ${article.source} | <strong>Author:</strong> ${article.author}</p>
-                        <p><strong>Published:</strong> ${article.publishedAt}</p>
-                        <img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">
-                        <p><a href="${article.url}" target="_blank">Read Full Article</a></p>
+                        <h2>${article.title || "No Title"}</h2>
+                        <div class="news-meta">
+                            <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${new Date(article.publishedAt).toLocaleDateString()}</span>
+                        </div>
+                        <p>${article.summary || "No summary available."}</p>
+                        ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
+                        <a href="${article.url}" target="_blank" class="news-link">
+                            Read Full Article <i class="fas fa-external-link-alt"></i>
+                        </a>
                     `;
                     newsContainer.appendChild(newsCard);
                 }
@@ -99,9 +126,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             page++;
             loading = false;
+            hideLoadingSpinner();
         }
     }
-
 
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {

@@ -57,12 +57,13 @@ def load_latest_news():
 
     news_data = [
         {
-            "title": item["title"],
-            "source": item["source"],
+            "title": item.get("title", "No Title"),
+            "source": item.get("source", "Unknown"),
             "author": item.get("author", "N/A"),
             "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
+            "urlToImage": item.get("urlToImage", ""),
+            "summary": item.get("summary", "No summary available.")
         } for item in latest_news
     ]
 
@@ -78,12 +79,13 @@ def load_more_news():
 
     news_data = [
         {
-            "title": item["title"],
-            "source": item["source"],
+            "title": item.get("title", "No Title"),
+            "source": item.get("source", "Unknown"),
             "author": item.get("author", "N/A"),
             "publishedAt": item["publishedAt"] if isinstance(item["publishedAt"], str) else item["publishedAt"].strftime("%Y-%m-%d %H:%M:%S"),
             "url": item["url"],
-            "urlToImage": item.get("urlToImage", "")
+            "urlToImage": item.get("urlToImage", ""),
+            "summary": item.get("summary", "No summary available.")
         } for item in news
     ]
 
@@ -100,12 +102,13 @@ def search_news():
         logger.info(f"🔎 Found {len(news)} results for '{query}'")
         news_data = [
             {
-                "title": item["title"],
-                "source": item["source"],
+                "title": item.get("title", "No Title"),
+                "source": item.get("source", "Unknown"),
                 "author": item.get("author", "N/A"),
                 "publishedAt": item.get("publishedAt", ""),
                 "url": item["url"],
-                "urlToImage": item.get("urlToImage", "")
+                "urlToImage": item.get("urlToImage", ""),
+                "summary": item.get("summary", "No summary available.")
             } for item in news
         ]
         return jsonify({"news": news_data})
