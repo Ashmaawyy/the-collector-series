@@ -6,7 +6,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-PAGE_SIZE = 5  # Number of articles per page
+PAGE_SIZE = 8  # Number of articles per page
 
 @app.route("/")
 def home():
@@ -72,7 +72,7 @@ def load_latest_news():
 def load_more_news():
     page = request.args.get("page", 1, type=int)
     logger.info(f"📖 Loading more news (page {page})")
-    per_page = 5
+    per_page = 8
 
     news = list(news_collection.find().sort("publishedAt", -1).skip((page - 1) * per_page).limit(per_page))
 
