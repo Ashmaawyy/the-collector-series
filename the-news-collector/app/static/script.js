@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (window.scrollY > 300) {
-            backToTopBtn.style.display = "block";
+            backToTopBtn.style.display = "inline";
         } else {
             backToTopBtn.style.display = "none";
         }
