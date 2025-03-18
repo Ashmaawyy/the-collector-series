@@ -149,6 +149,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="paper-tags">
                     ${subjects.map(s => `<span class="tag">${s}</span>`).join('')}
                 </div>
+                <div class="paper-abstract">
+                    <h1>${paper.abstract.h1}</h1>
+                    <p>${paper.abstract.p}</p>
+                </div>
                 <div class="paper-footer">
                     <a href="${paper.url || '#'}" target="_blank" class="paper-link">
                         Read Full Paper <i class="fas fa-external-link-alt"></i>
