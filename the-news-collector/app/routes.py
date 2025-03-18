@@ -22,7 +22,7 @@ def home():
 
     # Filter articles based on search or category
     for article in all_articles:
-        headline_match = query in article["headline"].lower() if query else True
+        headline_match = query in article["title"].lower() if query else True
         category_match = article["category"].lower() == category if category else True
 
         if headline_match and category_match:
