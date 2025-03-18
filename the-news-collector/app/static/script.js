@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <span><i class="fas fa-user"></i> ${article.author || "Unknown"}</span>
                             <span><i class="fas fa-calendar-alt"></i> ${new Date(article.publishedAt).toLocaleDateString()}</span>
                         </div>
-                        ${article.urlToImage ? `<img src="${article.urlToImage}" alt="News Image" class="news-image small-news-image">` : ""}
+                        ${article.urlToImage ? `<img src="${article.urlToImage}" alt="${article.title}" class="news-image small-news-image">` : ""}
                         <a href="${article.url}" target="_blank" class="news-link">
                             Read Full Article <i class="fas fa-external-link-alt"></i>
                         </a>

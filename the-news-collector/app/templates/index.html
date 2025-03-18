@@ -29,14 +29,7 @@
     </header>
     
     <section id="news-container">
-        {% for article in articles %}
-            <div class="news-card small-news">
-                <h2>{{ article.headline }}</h2>
-                <p><strong>Author:</strong> {{ article.author }}</p>
-                <p><strong>Published At:</strong> {{ article.publishedAt }}</p>
-                <a href="{{ article.url }}" target="_blank">Read Full Article</a>
-            </div>
-        {% endfor %}
+        <!-- articles are inserted dynamically ; ) -->
     </section>
     
     <div id="loading-spinner" class="loading-spinner" style="display: none;">
