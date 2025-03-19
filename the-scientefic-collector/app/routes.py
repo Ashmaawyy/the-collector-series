@@ -14,7 +14,7 @@ def home():
         
         # Get papers with proper MongoDB query
         papers = list(papers_collection.find()
-            .sort("publication_date", -1)
+            .sort("publishedAt", -1)
             .skip((page - 1) * per_page)
             .limit(per_page)
         )
@@ -22,12 +22,11 @@ def home():
         # Convert MongoDB objects to dicts
         paper_data = [{
             "title": p.get("title", "Untitled"),
-            "authors": p.get("authors", []),
-            "publication_date": p.get("publication_date", ""),
+            "author": p.get("author", "Unknown Author"),
+            "publishedAt": p.get("publishedAt", ""),
             "url": p.get("url", "#"),
             "abstract": p.get("abstract", ""),
             "journal": p.get("journal", "Unknown Journal"),
-            "subjects": p.get("subjects", [])
         } for p in papers]
 
         return render_template("index.html", papers=paper_data, page=page)
@@ -46,7 +45,7 @@ def get_papers():
         
         pipeline = [
             {"$match": {"$text": {"$search": query}}} if query else {"$match": {}},
-            {"$sort": {"publication_date": -1}},
+            {"$sort": {"publishedAt": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
             {"$project": {"_id": 0}}
@@ -78,18 +77,17 @@ def load_more_papers():
         query = request.args.get("q", "").strip()
         
         pipeline = [
-            {"$sort": {"publication_date": -1}},
+            {"$sort": {"PublishedAt": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
             {"$project": {
                 "_id": 0,
                 "title": 1,
                 "authors": 1,
-                "publication_date": 1,
+                "publishedAt": 1,
                 "url": 1,
                 "abstract": 1,
                 "journal": 1,
-                "subjects": 1
             }}
         ]
         
