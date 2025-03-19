@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from tenacity import retry, stop_after_attempt, wait_fixed
 import os
 import logging
-import springernature_api_client.metadata as metadata
+import springernature_api_client.openaccess as openaccess
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,10 @@ def fetch_papers(days=60, max_results=100):
     end_date = datetime.now().strftime('%Y-%m-%d')
     
     try:
-        metadata_client = metadata.MetadataAPI(api_key=SPRINGER_API_KEY)
+        openaccess_client = openaccess.OpenAccessAPI(api_key=SPRINGER_API_KEY)
         start = 1
         while len(papers) < max_results:
-            response = metadata_client.search(
+            response = openaccess_client.search(
                 q=f'date:{start_date} TO {end_date}',
                 p=10,
                 s=start,
@@ -42,11 +42,12 @@ def fetch_papers(days=60, max_results=100):
             for record in response['records']:
                 paper = {
                     "title": record.get("title", "Untitled"),
-                    "authors": record.get("author", ""),
-                    "publishedAt": record.get("publishedAt"),
+                    "doi": record.get("doi", ""),
+                    "authors": [c["creator"] for c in record.get("creators", [])],
+                    "publication_date": record.get("publicationDate"),
                     "url": next((u["value"] for u in record.get("url", []) if u["format"] == "html"), ""),
                     "abstract": record.get("abstract", ""),
-                    "journal": record.get("journal", "Springer"),
+                    "journal": record.get("journalTitle", "Springer"),
                 }
                 papers.append(paper)
             
@@ -57,6 +58,7 @@ def fetch_papers(days=60, max_results=100):
 
     except Exception as e:
         logger.error(f"🔥 Critical API error: {str(e)}")
+        logger.error(f"Sample response: {response}")
         return []
 
 def store_papers(papers):
