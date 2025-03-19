@@ -1,9 +1,8 @@
-from pymongo import MongoClient
 from datetime import datetime, timedelta
-import requests
+from tenacity import retry, stop_after_attempt, wait_fixed
 import os
 import logging
-from tenacity import retry, stop_after_attempt, wait_fixed
+import springernature_api_client.openaccess as openaccess
 
 logger = logging.getLogger(__name__)
 
@@ -22,19 +21,16 @@ def fetch_papers(days=60, max_results=100):
     end_date = datetime.now().strftime('%Y-%m-%d')
     
     try:
+        metadata_client = openaccess.OpenAccessAPI(api_key=SPRINGER_API_KEY)
         start = 1
         while len(papers) < max_results:
-            url = (
-                f"https://api.springernature.com/openaccess/json?"
-                f"api_key={SPRINGER_API_KEY}&"
-                f"q=onlinedate:{start_date} TO {end_date}&"
-                f"p={start}&s=10"
+            response = metadata_client.search(
+                q=f'date:{start_date} TO {end_date}',
+                p=10,
+                s=start,
+                fetch_all=False,
+                is_premium=False
             )
-            
-            response = requests.get(url, headers={
-                "User-Agent": "ScientificCollector/1.0",
-                "Accept": "application/json"
-            }, timeout=10)
             
             if response.status_code != 200:
                 logger.error(f"❌ API Error: {response.status_code} - {response.text}")
@@ -48,12 +44,11 @@ def fetch_papers(days=60, max_results=100):
                 paper = {
                     "title": record.get("title", "Untitled"),
                     "doi": record.get("doi", ""),
-                    "authors": [c["creator"] for c in record.get("creators", [])],
-                    "publication_date": record.get("publicationDate"),
+                    "author": record.get("author", ""),
+                    "publishedAt": record.get("publishedAt"),
                     "url": next((u["value"] for u in record.get("url", []) if u["format"] == "html"), ""),
                     "abstract": record.get("abstract", ""),
-                    "journal": record.get("publicationName", "Springer"),
-                    "subjects": [s["name"] for s in record.get("subjects", [])]
+                    "journal": record.get("journal", "Springer"),
                 }
                 papers.append(paper)
             
