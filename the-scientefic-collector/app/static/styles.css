@@ -446,7 +446,7 @@
 /* Other existing styles... */
 
 .paper-abstract {
-  max-height: 100px; /* Initial height when collapsed */
+  max-height: 0; /* Initial height when collapsed */
   overflow: hidden;
   transition: max-height 0.3s ease;
 }
