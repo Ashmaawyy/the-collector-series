@@ -1,7 +1,6 @@
 from flask import Flask
-from pymongo import MongoClient
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_articles, store_articles, news_collection
+from models import fetch_articles, store_articles
 from datetime import datetime
 import logging
 
