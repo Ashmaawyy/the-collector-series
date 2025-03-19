@@ -90,7 +90,7 @@ def store_papers(papers):
                     "publicationDate": paper["publicationDate"],
                     "url": paper["url"],
                     "abstract": paper["abstract"],
-                    "journal": paper["journal"],
+                    "journal": paper["journalTitle"],
                 })
             else:
                 duplicates += 1
