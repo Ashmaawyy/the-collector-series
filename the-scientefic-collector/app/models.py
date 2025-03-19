@@ -25,7 +25,9 @@ def fetch_papers(days=60, max_results=100):
         start = 1
         while len(papers) < max_results:
             response = openaccess_client.search(
-                q=f'date:{start_date} TO {end_date}',
+                q='',
+                datefrom=start_date,
+                dateto=end_date,
                 p=10,
                 s=start,
                 fetch_all=False,
