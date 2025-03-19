@@ -31,7 +31,10 @@ def fetch_papers_job():
     try:
         logger.info("🕸️ Starting paper fetch job")
         papers = fetch_papers()
-        logger.info(f"✅ Successfully fetched {len(papers)} papers")
+        if not papers:
+            logger.warning("📭 No papers fetched")
+        else:
+            logger.info(f"✅ Successfully fetched {len(papers)} papers")
     except Exception as e:
         logger.error(f"🔥 Scheduled job failed: {str(e)}")
 
