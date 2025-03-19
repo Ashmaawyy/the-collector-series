@@ -50,11 +50,11 @@ def fetch_papers(days=60, max_results=100):
             
             if response.status_code != 200:
                 logger.error(f"❌ API Error: {response.status_code} - {response.text}")
-                break
+                return []
 
             data = response.json()
             if not data.get('records'):
-                break
+                return []
 
             for record in data['records']:
                 paper = {
