@@ -17,8 +17,8 @@ def fetch_papers(days=60, max_results=100):
         logger.error("🔑 Missing Springer API key")
         return []
 
-    start_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
-    end_date = datetime.now().strftime('%Y-%m-%d')
+    end_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+    start_date = datetime.now().strftime('%Y-%m-%d')
     
     try:
         metadata_client = metadata.MetadataAPI(api_key=SPRINGER_API_KEY)
