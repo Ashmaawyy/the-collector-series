@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify
-from app import app, papers_collection
+from app import app
+from models import papers_collection
 import logging
 
 logger = logging.getLogger(__name__)
