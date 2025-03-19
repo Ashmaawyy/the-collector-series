@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from tenacity import retry, stop_after_attempt, wait_fixed
 import os
 import logging
-import springernature_api_client.openaccess as openaccess
+import springernature_api_client.metadata as metadata
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def fetch_papers(days=60, max_results=100):
     end_date = datetime.now().strftime('%Y-%m-%d')
     
     try:
-        metadata_client = openaccess.OpenAccessAPI(api_key=SPRINGER_API_KEY)
+        metadata_client = metadata.MetadataAPI(api_key=SPRINGER_API_KEY)
         start = 1
         while len(papers) < max_results:
             response = metadata_client.search(
@@ -32,20 +32,18 @@ def fetch_papers(days=60, max_results=100):
                 is_premium=False
             )
             
-            if response.status_code != 200:
-                logger.error(f"❌ API Error: {response.status_code} - {response.text}")
+            if 'records' not in response:
+                logger.error(f"❌ API Error: {response}")
                 break
 
-            data = response.json()
-            if not data.get('records'):
+            if not response['records']:
                 break
 
-            for record in data['records']:
+            for record in response['records']:
                 paper = {
                     "title": record.get("title", "Untitled"),
-                    "doi": record.get("doi", ""),
-                    "author": record.get("author", ""),
-                    "publishedAt": record.get("publishedAt"),
+                    "authors": record.get("author", ""),
+                    "publication_date": record.get("publicationDate"),
                     "url": next((u["value"] for u in record.get("url", []) if u["format"] == "html"), ""),
                     "abstract": record.get("abstract", ""),
                     "journal": record.get("journal", "Springer"),
