@@ -1,6 +1,5 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import fetch_papers, store_papers
 from dotenv import load_dotenv
 from pathlib import Path
 import datetime
@@ -9,7 +8,6 @@ import logging
 # Load environment variables first
 env_path = Path('.') / 'keys.env'
 load_dotenv(env_path)
-papers = []
 
 # Configure logging before creating app instance
 logging.basicConfig(
@@ -32,37 +30,29 @@ scheduler.start()
 
 def fetch_papers_job():
     """Job to fetch papers from Springer API"""
-    global papers
+    from models import fetch_papers, store_papers
     try:
         logger.info("🕸️ Starting paper fetch job")
         papers = fetch_papers()
-        logger.info(f"✅ Successfully fetched {len(papers)} papers")
+        store_papers(papers)
+        logger.info(f"✅ Successfully processed {len(papers)} papers")
     except Exception as e:
-        logger.error(f"🔥 Fetch papers job failed: {str(e)}")
+        logger.error(f"🔥 Scheduled job failed: {str(e)}")
 
 def store_papers_job():
     """Job to store papers in MongoDB"""
-    global papers
+    from models import fetch_papers, store_papers
     try:
         logger.info("📦 Starting paper storage job")
+        papers = fetch_papers()
         store_papers(papers)
+        logger.info(f"🔄 Stored {len(papers)} papers in MongoDB")
     except Exception as e:
-        logger.error(f"🔥 Store papers job failed: {str(e)}")
+        logger.error(f"🔥 Scheduled job failed: {str(e)}")
 
 # Add scheduled jobs
-scheduler.add_job(
-    fetch_papers_job,
-    'interval',
-    minutes=10,
-    next_run_time=datetime.datetime.now()
-)
-
-scheduler.add_job(
-    store_papers_job,
-    'interval',
-    minutes=11,
-    next_run_time=datetime.datetime.now()
-)
+scheduler.add_job(fetch_papers_job, 'interval', minutes=10, next_run_time=datetime.datetime.now())
+scheduler.add_job(store_papers_job, 'interval', minutes=15, next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
 
 @app.teardown_appcontext
 def shutdown_scheduler(exception=None):
