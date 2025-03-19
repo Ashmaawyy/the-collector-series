@@ -1,11 +1,17 @@
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from tenacity import retry, stop_after_attempt, wait_fixed
+from dotenv import load_dotenv
+from pathlib import Path
 import requests
 import os
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Load environment variables first
+env_path = Path('.') / 'keys.env'
+load_dotenv(env_path)
 
 # MongoDB configuration
 MONGO_URI = os.getenv('MONGO_URI')
