@@ -15,20 +15,27 @@ def home():
         
         # Get papers with proper MongoDB query
         papers = list(papers_collection.find()
-            .sort("publishedAt", -1)
+            .sort("publicationDate", -1)
             .skip((page - 1) * per_page)
             .limit(per_page)
         )
 
-        # Convert MongoDB objects to dicts
-        paper_data = [{
-            "title": p.get("title", "Untitled"),
-            "authors": p.get("authors", ["Unknown Author"]),
-            "publicationDate": p.get("publicationDate", "Unknown Date"),
-            "doi": p.get("doi", "#"),
-            "abstract": p.get("abstract", "No abstract available"),
-            "publisherName": p.get("publisherName", "Unknown Journal"),
-        } for p in papers]
+        # Convert MongoDB objects to dicts and remove duplicates
+        seen_dois = set()
+        paper_data = []
+        for p in papers:
+            doi = p.get("doi", "")
+            if doi not in seen_dois:
+                seen_dois.add(doi)
+                paper_data.append({
+                    "title": p.get("title", "Untitled"),
+                    "authors": p.get("authors", ["Unknown Author"]),
+                    "publicationDate": p.get("publicationDate", "Unknown Date"),
+                    "doi": doi,
+                    "abstract": p.get("abstract", "No abstract available"),
+                    "publisherName": p.get("publisherName", "Unknown Journal"),
+                    "url": p.get("url", "#")
+                })
 
         return render_template("index.html", papers=paper_data, page=page)
     
@@ -46,7 +53,7 @@ def get_papers():
         
         pipeline = [
             {"$match": {"$text": {"$search": query}}} if query else {"$match": {}},
-            {"$sort": {"publishedAt": -1}},
+            {"$sort": {"publicationDate": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
             {"$project": {"_id": 0}}
@@ -90,8 +97,7 @@ def load_more_papers():
                 "publicationType": 1,
                 "publicationDate": 1,
                 "url": 1,
-                "abstract": 1,
-                "publisherName": 1,
+                "abstract": 1
             }}
         ]
         
