@@ -106,9 +106,11 @@ def load_more_papers():
             
         papers = list(papers_collection.aggregate(pipeline))
         
+        next_page = page + 1 if len(papers) == per_page else None
+        
         return jsonify({
             "papers": papers,
-            "next_page": page + 1 if len(papers) == per_page else None
+            "next_page": next_page
         })
         
     except Exception as e:

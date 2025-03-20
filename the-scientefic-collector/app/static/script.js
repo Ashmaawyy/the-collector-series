@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return [];
             }
             currentPage = next_page || currentPage + 1;
+            hasMore = !!next_page;
             return papers;
         } catch (error) {
             hasMore = false;
