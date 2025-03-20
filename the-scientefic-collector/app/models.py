@@ -39,7 +39,7 @@ def fetch_papers(days=7, max_results=100):
             url = (
                 f"https://api.springernature.com/openaccess/json?"
                 f"api_key={SPRINGER_API_KEY}&"
-                f"q=onlinedatefrom:{start_date} onlinedateto:{end_date}&p=100"
+                f"q=onlinedatefrom:{start_date} onlinedateto:{end_date}"
             )
             
             response = requests.get(url, headers={
