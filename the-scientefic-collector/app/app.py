@@ -1,7 +1,8 @@
 from flask import Flask
 from models import fetch_papers, store_papers
 from apscheduler.schedulers.background import BackgroundScheduler
-import datetime
+from datetime import datetime, timedelta
+import os
 import logging
 
 papers = []
@@ -53,14 +54,17 @@ def store_papers_job():
 
 # Initialize scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_papers_job, 'interval', minutes=3)
-scheduler.add_job(store_papers_job, 'interval', minutes=4)
-# Start scheduler
-scheduler.start()
+scheduler.add_job(fetch_papers_job, 'interval', minutes=3, next_run_time=datetime.now())
+scheduler.add_job(store_papers_job, 'interval', minutes=4, next_run_time=datetime.now()+timedelta(minutes=1))
 
 # Import routes after app creation to avoid circular imports
 from routes import *
 
 if __name__ == "__main__":
     logger.info("🚀 The Scientific Collector starting on port 5000")
+
+     # Prevent scheduler from starting twice
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":  
+        scheduler.start()
+    
     app.run(debug=True, port=5000, host="0.0.0.0")
