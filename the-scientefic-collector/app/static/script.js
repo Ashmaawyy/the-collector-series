@@ -56,30 +56,47 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const createPaperCard = (paper) => {
-        const card = document.createElement('div');
-        card.className = 'paper-card';
-        card.innerHTML = `
-            <div class="paper-header">
-                <h2>${paper.title || 'Untitled Paper'}</h2>
-            </div>
-            <div class="paper-meta">
-                <span><i class="fas fa-user"></i> ${paper.author || 'Author not available'}</span>
-                <span><i class="fas fa-calendar"></i> ${paper.publishedAt || 'Date not available'}</span>
-                <span><i class="fas fa-book"></i> ${paper.journal || 'Unknown Journal'}</span>
-            </div>
-            <div class="abstract-toggle">
-                <i class="fas fa-chevron-down"></i>
-                <span>Abstract</span>
-            </div>
-            <div class="paper-abstract">
-                <p>${paper.abstract.p}</p>
-            </div>
-            <div class="paper-footer">
-                <a href="${paper.url || '#'}" target="_blank" class="paper-link">
-                    Read Full Paper <i class="fas fa-external-link-alt"></i>
-                </a>
-            </div>
-        `;
+        const card = document.createElement("div");
+        card.classList.add("paper-card");
+
+        const title = document.createElement("h2");
+        title.innerHTML = `<i class="fas fa-book"></i> ${paper.title || "Untitled Paper"}`;
+
+        const authors = document.createElement("p");
+        authors.innerHTML = `<i class="fas fa-user"></i> <strong>Authors:</strong> ${paper.authors ? paper.authors.join(", ") : "Unknown"}`;
+
+        const journal = document.createElement("p");
+        journal.innerHTML = `<i class="fas fa-newspaper"></i> <strong>Journal:</strong> ${paper.publisherName || "Not Available"}`;
+
+        const publicationDate = document.createElement("p");
+        publicationDate.innerHTML = `<i class="fas fa-calendar-alt"></i> <strong>Published:</strong> ${paper.publicationDate || "Unknown Date"}`;
+
+        const abstract = document.createElement("p");
+        abstract.innerHTML = `<strong>Abstract:</strong> ${paper.abstract ? (Array.isArray(paper.abstract.p) ? paper.abstract.p.join(" ") : paper.abstract) : "No abstract available."}`;
+        abstract.classList.add("abstract-text");
+
+        const toggleAbstract = document.createElement("span");
+        toggleAbstract.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        toggleAbstract.classList.add("toggle-abstract");
+        toggleAbstract.addEventListener("click", function () {
+            abstract.classList.toggle("expanded");
+            toggleAbstract.innerHTML = abstract.classList.contains("expanded") ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+        });
+
+        const readMore = document.createElement("a");
+        readMore.href = paper.doi ? `https://doi.org/${paper.doi}` : "#";
+        readMore.innerHTML = '<i class="fas fa-external-link-alt"></i> Read More';
+        readMore.target = "_blank";
+        readMore.classList.add("read-more-btn");
+
+        card.appendChild(title);
+        card.appendChild(authors);
+        card.appendChild(journal);
+        card.appendChild(publicationDate);
+        card.appendChild(abstract);
+        card.appendChild(toggleAbstract);
+        card.appendChild(readMore);
+
         return card;
     };
 
