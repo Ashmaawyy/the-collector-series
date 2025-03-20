@@ -53,8 +53,8 @@ def store_papers_job():
 
 # Initialize scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_papers_job, 'interval', minutes=3, next_run_time=datetime.datetime.now())
-scheduler.add_job(store_papers_job, 'interval', minutes=4, next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
+scheduler.add_job(fetch_papers_job, 'interval', minutes=3)
+scheduler.add_job(store_papers_job, 'interval', minutes=4)
 # Start scheduler
 scheduler.start()
 
