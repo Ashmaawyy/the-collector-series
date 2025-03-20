@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isLoading = false;
     let currentPage = 1;
     let hasMore = true;
+    const seenDois = new Set();
 
     const applyTheme = (theme) => {
         document.documentElement.classList.toggle('dark-mode', theme === 'dark');
@@ -102,9 +103,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const appendPapers = (papers) => {
         papers.forEach(paper => {
-            const card = createPaperCard(paper);
-            papersContainer.appendChild(card);
-            fadeInElement(card);
+            if (!seenDois.has(paper.doi)) {
+                seenDois.add(paper.doi);
+                const card = createPaperCard(paper);
+                papersContainer.appendChild(card);
+                fadeInElement(card);
+            }
         });
     };
 
@@ -147,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentPage = 1;
         hasMore = true;
         papersContainer.innerHTML = '';
+        seenDois.clear();
         const papers = await fetchPapers(currentPage, e.target.value);
         appendPapers(papers);
     }, 300));
