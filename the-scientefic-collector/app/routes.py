@@ -24,16 +24,16 @@ def home():
         seen_dois = set()
         paper_data = []
         for p in papers:
-            doi = p.get("doi", "")
-            if doi and doi not in seen_dois:
-                seen_dois.add(doi)
+            title = p.get("title", "")
+            if title and title not in seen_dois:
+                seen_dois.add(title)
                 paper_data.append({
-                    "title": p.get("title", "Untitled"),
+                    "title": p.get(title, "Untitled"),
+                    "doi": p.get("doi", ""),
                     "authors": p.get("authors", ["Unknown Author"]),
+                    "journal": p.get("publisherName", "Unknown Journal"),
                     "publicationDate": p.get("publicationDate", "Unknown Date"),
-                    "doi": doi,
                     "abstract": p.get("abstract", "No abstract available"),
-                    "publisherName": p.get("publisherName", "Unknown Journal"),
                     "url": p.get("url", "#")
                 })
 

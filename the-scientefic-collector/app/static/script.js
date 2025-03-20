@@ -109,12 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const appendPapers = (papers) => {
         papers.forEach(paper => {
-            if (!seenDois.has(paper.doi)) {
-                seenDois.add(paper.doi);
                 const card = createPaperCard(paper);
                 papersContainer.appendChild(card);
                 fadeInElement(card);
-            }
         });
     };
 
