@@ -56,8 +56,8 @@ def store_papers_job():
         return
 
 # Add scheduled jobs
-scheduler.add_job(fetch_papers_job, 'interval', minutes=10, next_run_time=datetime.datetime.now())
-scheduler.add_job(store_papers_job, 'interval', minutes=15, next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
+scheduler.add_job(fetch_papers_job, 'interval', minutes=5)
+scheduler.add_job(store_papers_job, 'interval', minutes=6)
 
 #@app.teardown_appcontext
 #def shutdown_scheduler(exception=None):

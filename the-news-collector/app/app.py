@@ -41,8 +41,8 @@ def store_articles_job():
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_articles_job, "interval", minutes=5, next_run_time=datetime.now())
-scheduler.add_job(store_articles_job, "interval", minutes=6, next_run_time=datetime.now())
+scheduler.add_job(fetch_articles_job, "interval", minutes=5)
+scheduler.add_job(store_articles_job, "interval", minutes=6)
 scheduler.start()
 
 # Import routes
