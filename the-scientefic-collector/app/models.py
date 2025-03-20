@@ -20,8 +20,8 @@ db = client['the-scientific-collector']
 papers_collection = db['scientific-collection']
 
 # Retry configuration for API calls
-#@retry(stop=stop_after_attempt(3), wait=wait_fixed(10))
-def fetch_papers(days=60, max_results=100):
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(10))
+def fetch_papers(days=7, max_results=100):
     """Fetch papers from Springer API with enhanced error handling"""
     papers = []
     SPRINGER_API_KEY = os.getenv('SPRINGER_API_KEY')
@@ -49,7 +49,6 @@ def fetch_papers(days=60, max_results=100):
             
             if response.status_code != 200:
                 logger.error(f"❌ API Error: {response.status_code} - {response.text}")
-                return []
 
             data = response.json()
             if not data.get('records'):
@@ -85,15 +84,17 @@ def store_papers(papers):
             return
 
         logger.info("🔍 Checking for Duplicate papers before insertion...")
+        new_papers = []
+
+        for paper in papers:
+            if papers_collection.find_one({"title": paper["title"], "publicationDate": paper["publicationDate"]}):
+                logger.warning(f"⚠️ Found duplicate papers: {paper['title']} - skipping duplicate paper...")
+            else:
+                new_papers.append(paper)
         
-        if papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}):
-            duplicates = papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}).count()
-            logger.warning(f"⚠️ Found {duplicates} duplicate papers - skipping storing process...")
-            return
-        
-        else:
-            papers_collection.insert_many(papers)
-            logger.info(f"📚 Inserted {len(papers)} new papers")
+        if new_papers:
+            papers_collection.insert_many(new_papers)
+            logger.info(f"📚 Inserted {len(new_papers)} new papers")
             return
 
     except Exception as e:

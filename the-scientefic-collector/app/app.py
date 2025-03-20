@@ -54,8 +54,8 @@ def store_papers_job():
 
 # Initialize scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_papers_job, 'interval', minutes=3, next_run_time=datetime.now())
-scheduler.add_job(store_papers_job, 'interval', minutes=4, next_run_time=datetime.now()+timedelta(minutes=1))
+scheduler.add_job(fetch_papers_job, 'interval', minutes=5, next_run_time=datetime.now())
+scheduler.add_job(store_papers_job, 'interval', minutes=6, next_run_time=datetime.now()+timedelta(minutes=1))
 
 # Import routes after app creation to avoid circular imports
 from routes import *
