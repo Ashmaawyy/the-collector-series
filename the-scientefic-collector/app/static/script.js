@@ -58,23 +58,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const createPaperCard = (paper) => {
         const card = document.createElement("div");
         card.classList.add("paper-card");
-    
+
         const title = document.createElement("h2");
         title.innerHTML = `<i class="fas fa-book"></i> ${paper.title || "Untitled Paper"}`;
-    
+
         const authors = document.createElement("p");
         authors.innerHTML = `<i class="fas fa-user"></i> <strong>Authors:</strong> ${paper.authors ? paper.authors.join(", ") : "Unknown"}`;
-    
+
         const journal = document.createElement("p");
-        journal.innerHTML = `<i class="fas fa-newspaper"></i> <strong>Journal:</strong> ${paper.journal || "Not Available"}`;
-    
+        journal.innerHTML = `<i class="fas fa-newspaper"></i> <strong>Journal:</strong> ${paper.publisherName || "Not Available"}`;
+
         const publicationDate = document.createElement("p");
-        publicationDate.innerHTML = `<i class="fas fa-calendar-alt"></i> <strong>Published:</strong> ${paper.publishedAt || "Unknown Date"}`;
-    
+        publicationDate.innerHTML = `<i class="fas fa-calendar-alt"></i> <strong>Published:</strong> ${paper.publicationDate || "Unknown Date"}`;
+
         const abstract = document.createElement("p");
         abstract.innerHTML = `<strong>Abstract:</strong> ${paper.abstract || "No abstract available."}`;
         abstract.classList.add("abstract-text");
-    
+
         const toggleAbstract = document.createElement("span");
         toggleAbstract.innerHTML = '<i class="fas fa-chevron-down"></i>';
         toggleAbstract.classList.add("toggle-abstract");
@@ -82,13 +82,13 @@ document.addEventListener("DOMContentLoaded", function () {
             abstract.classList.toggle("expanded");
             toggleAbstract.innerHTML = abstract.classList.contains("expanded") ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
         });
-    
+
         const readMore = document.createElement("a");
         readMore.href = paper.url || "#";
         readMore.innerHTML = '<i class="fas fa-external-link-alt"></i> Read More';
         readMore.target = "_blank";
         readMore.classList.add("read-more-btn");
-    
+
         card.appendChild(title);
         card.appendChild(authors);
         card.appendChild(journal);
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
         card.appendChild(abstract);
         card.appendChild(toggleAbstract);
         card.appendChild(readMore);
-    
+
         return card;
     };
 
@@ -105,14 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const card = createPaperCard(paper);
             papersContainer.appendChild(card);
             fadeInElement(card);
-
-            // Add event listener for abstract toggle
-            const toggle = card.querySelector('.abstract-toggle');
-            toggle.addEventListener('click', () => {
-                const abstract = card.querySelector('.paper-abstract');
-                abstract.classList.toggle('active');
-                toggle.querySelector('i').classList.toggle('fa-chevron-up');
-            });
         });
     };
 
