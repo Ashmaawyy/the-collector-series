@@ -4,7 +4,7 @@ from models import papers_collection
 import logging
 
 logger = logging.getLogger(__name__)
-DEFAULT_PER_PAGE = 16
+DEFAULT_PER_PAGE = 8
 
 @app.route('/')
 def home():
