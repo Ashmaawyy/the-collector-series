@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title.innerHTML = `<i class="fas fa-book"></i> ${paper.title || "Untitled Paper"}`;
 
         const doi = document.createElement("p");
-        doi.innerHTML = `<i class="fas fa-barcode"></i> <strong>DOI:</strong>${paper.doi}`;
+        doi.innerHTML = `<i class="fas fa-barcode"></i> <strong>DOI:</strong> ${paper.doi}`;
         doi.classList.add("doi-text");
 
         const authors = document.createElement("p");
