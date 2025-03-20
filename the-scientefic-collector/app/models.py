@@ -59,7 +59,7 @@ def fetch_papers(days=60, max_results=100):
                 paper = {
                     "title": record.get("title", "Untitled"),
                     "doi": record.get("doi", ""),
-                    "authors": [c["creator"] for c in record.get("creator", [])],
+                    "authors": [c["creator"] for c in record.get("creators", [])],
                     "publisherName": record.get("publisherName", ""),
                     "publicationType": record.get("publicationType", ""),
                     "publicationDate": record.get("publicationDate"),
