@@ -21,12 +21,12 @@ def home():
         )
 
         # Convert MongoDB objects to dicts and remove duplicates
-        seen_dois = set()
+        seen_titles = set()
         paper_data = []
         for p in papers:
             title = p.get("title", "")
-            if title and title not in seen_dois:
-                seen_dois.add(title)
+            if title and title not in seen_titles:
+                seen_titles.add(title)
                 paper_data.append({
                     "title": p.get(title, "Untitled"),
                     "doi": p.get("doi", ""),
