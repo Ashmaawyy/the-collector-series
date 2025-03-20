@@ -16,8 +16,8 @@ load_dotenv(env_path)
 # MongoDB configuration
 MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
-db = client['the-scientific_collector']
-papers_collection = db['scientific_collection']
+db = client['the-scientific-collector']
+papers_collection = db['scientific-collection']
 
 # Retry configuration for API calls
 #@retry(stop=stop_after_attempt(3), wait=wait_fixed(10))
