@@ -78,7 +78,7 @@ def load_more_papers():
         query = request.args.get("q", "").strip()
         
         pipeline = [
-            {"$sort": {"PublishedAt": -1}},
+            {"$sort": {"publishedAt": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
             {"$project": {
