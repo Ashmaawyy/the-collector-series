@@ -78,17 +78,20 @@ def load_more_papers():
         query = request.args.get("q", "").strip()
         
         pipeline = [
-            {"$sort": {"publishedAt": -1}},
+            {"$sort": {"publicationDate": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
             {"$project": {
                 "_id": 0,
                 "title": 1,
+                "doi": 1,
                 "authors": 1,
-                "publishedAt": 1,
+                "publisherName": 1,
+                "publicationType": 1,
+                "publicationDate": 1,
                 "url": 1,
                 "abstract": 1,
-                "journal": 1,
+                "publisherName": 1,
             }}
         ]
         
