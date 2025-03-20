@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isLoading = false;
     let currentPage = 1;
     let hasMore = true;
-    const seenDois = new Set();
+    const seenTitles = new Set();
 
     const applyTheme = (theme) => {
         document.documentElement.classList.toggle('dark-mode', theme === 'dark');
@@ -109,9 +109,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const appendPapers = (papers) => {
         papers.forEach(paper => {
+            if (!seenTitles.has(paper.title)) {
+                seenTitles.add(paper.title);
                 const card = createPaperCard(paper);
                 papersContainer.appendChild(card);
                 fadeInElement(card);
+            }
         });
     };
 

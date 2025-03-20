@@ -21,21 +21,18 @@ def home():
         )
 
         # Convert MongoDB objects to dicts and remove duplicates
-        seen_titles = set()
         paper_data = []
         for p in papers:
-            title = p.get("title", "")
-            if title and title not in seen_titles:
-                seen_titles.add(title)
-                paper_data.append({
-                    "title": p.get(title, "Untitled"),
-                    "doi": p.get("doi", ""),
-                    "authors": p.get("authors", ["Unknown Author"]),
-                    "journal": p.get("publisherName", "Unknown Journal"),
-                    "publicationDate": p.get("publicationDate", "Unknown Date"),
-                    "abstract": p.get("abstract", "No abstract available"),
-                    "url": p.get("url", "#")
-                })
+            
+            paper_data.append({
+                "title": p.get("title", "Untitled"),
+                "doi": p.get("doi", ""),
+                "authors": p.get("authors", ["Unknown Author"]),
+                "journal": p.get("publisherName", "Unknown Journal"),
+                "publicationDate": p.get("publicationDate", "Unknown Date"),
+                "abstract": p.get("abstract", "No abstract available"),
+                "url": p.get("url", "#")
+            })
 
         return render_template("index.html", papers=paper_data, page=page)
     
