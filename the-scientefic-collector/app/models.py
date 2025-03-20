@@ -84,25 +84,18 @@ def store_papers(papers):
             logger.warning("📭 No papers to store")
             return
 
-        formatted_papers = []
-        duplicates = 0
-
-        logger.info("🧹 Processing papers for storage")
-        for paper in papers:
-            if not papers_collection.find_one({"title": paper["title"], "publicationDate": paper["publicationDate"]}):
-                formatted_papers.append(paper)
-            else:
-                duplicates += 1
-
-        if duplicates > 0:
-            logger.warning(f"⚠️ Found {duplicates} duplicate papers")
-
-        if formatted_papers:
-            papers_collection.insert_many(formatted_papers)
-            logger.info(f"📚 Stored {len(formatted_papers)} new papers")
+        logger.info("🧹 Checking for Duplicate papers...")
+        
+        if papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}):
+            duplicates = papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}).count()
+            logger.warning(f"⚠️ Found {duplicates} duplicate papers - skipping storing process...")
+            return
+        
         else:
-            logger.warning("📭 No new papers to store")
-            
+            papers_collection.insert_many(papers)
+            logger.info(f"📚 Stored {len(papers)} new papers")
+            return
+
     except Exception as e:
         logger.error(f"🔥 Storage failed: {str(e)}")
-
+        return
