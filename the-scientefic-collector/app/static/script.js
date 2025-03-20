@@ -64,6 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const title = document.createElement("h2");
         title.innerHTML = `<i class="fas fa-book"></i> ${paper.title || "Untitled Paper"}`;
 
+        const doi = document.createElement("p");
+        doi.innerHTML = `<i class="fas fa-barcode"></i> <strong>DOI:</strong>${paper.doi}`;
+        doi.classList.add("doi-text");
+
         const authors = document.createElement("p");
         authors.innerHTML = `<i class="fas fa-user"></i> <strong>Authors:</strong> ${paper.authors ? paper.authors.join(", ") : "Unknown"}`;
 
@@ -92,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
         readMore.classList.add("read-more-btn");
 
         card.appendChild(title);
+        card.appendChild(doi);
         card.appendChild(authors);
         card.appendChild(journal);
         card.appendChild(publicationDate);
