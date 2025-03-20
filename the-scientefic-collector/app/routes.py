@@ -81,7 +81,7 @@ def load_more_papers():
     """API endpoint for infinite scroll loading"""
     try:
         page = max(int(request.args.get("page", 1)), 1)
-        per_page = 10
+        per_page = 8
         query = request.args.get("q", "").strip()
         
         pipeline = [
