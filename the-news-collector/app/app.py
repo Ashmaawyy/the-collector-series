@@ -1,7 +1,7 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
 from models import fetch_articles, store_articles
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 app = Flask(__name__)
@@ -41,8 +41,8 @@ def store_articles_job():
 
 # Scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_articles_job, "interval", minutes=3)
-scheduler.add_job(store_articles_job, "interval", minutes=4)
+scheduler.add_job(fetch_articles_job, "interval", minutes=3, next_run_time=datetime.now())
+scheduler.add_job(store_articles_job, "interval", minutes=4, next_run_time=datetime.now() + timedelta(minutes=1))
 scheduler.start()
 
 # Import routes

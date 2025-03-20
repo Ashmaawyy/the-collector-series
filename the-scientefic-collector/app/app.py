@@ -21,10 +21,6 @@ logger = logging.getLogger(__name__)
 # Create Flask app
 app = Flask(__name__)
 
-# Initialize scheduler
-scheduler = BackgroundScheduler()
-scheduler.start()
-
 def fetch_papers_job():
     """Job to fetch papers from Springer API"""
     global papers
@@ -55,15 +51,12 @@ def store_papers_job():
         logger.error(f"🔥 store_papers_job FAILURE: {str(e)}")
         return
 
-# Add scheduled jobs
-scheduler.add_job(fetch_papers_job, 'interval', minutes=3)
-scheduler.add_job(store_papers_job, 'interval', minutes=4)
-
-#@app.teardown_appcontext
-#def shutdown_scheduler(exception=None):
-#    """Shut down the scheduler when the app stops"""
-#    if scheduler.running:
-#        scheduler.shutdown()
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(fetch_papers_job, 'interval', minutes=3, next_run_time=datetime.datetime.now())
+scheduler.add_job(store_papers_job, 'interval', minutes=4, next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
+# Start scheduler
+scheduler.start()
 
 # Import routes after app creation to avoid circular imports
 from routes import *
