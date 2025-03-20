@@ -107,14 +107,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return card;
     };
 
+    const getPaperTitle = (paper) => paper.title || "Untitled Paper";
+
     const appendPapers = (papers) => {
         papers.forEach(paper => {
-            if (!seenTitles.has(paper.title)) {
-                seenTitles.add(paper.title);
-                const card = createPaperCard(paper);
-                papersContainer.appendChild(card);
-                fadeInElement(card);
-            }
+            const title_text = getPaperTitle(paper);
+            if (seenTitles.has(title_text)) return; // Skip duplicate papers
+            seenTitles.add(title_text);
+            const card = createPaperCard(paper);
+            papersContainer.appendChild(card);
+            fadeInElement(card);
         });
     };
 
@@ -157,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentPage = 1;
         hasMore = true;
         papersContainer.innerHTML = '';
-        seenDois.clear();
+        seenTitles.clear();
         const papers = await fetchPapers(currentPage, e.target.value);
         appendPapers(papers);
     }, 300));

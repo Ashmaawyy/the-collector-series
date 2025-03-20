@@ -82,6 +82,12 @@ def load_more_papers():
         query = request.args.get("q", "").strip()
         
         pipeline = [
+            {"$match": {"$text": {"$search": query}}} if query else {"$match": {}},
+            {"$group": {
+                "_id": "$doi",  # group by DOI
+                "doc": {"$first": "$$ROOT"}
+            }},
+            {"$replaceRoot": {"newRoot": "$doc"}},
             {"$sort": {"publicationDate": -1}},
             {"$skip": (page - 1) * per_page},
             {"$limit": per_page},
