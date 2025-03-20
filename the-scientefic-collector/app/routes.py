@@ -23,11 +23,11 @@ def home():
         # Convert MongoDB objects to dicts
         paper_data = [{
             "title": p.get("title", "Untitled"),
-            "author": p.get("author", "Unknown Author"),
-            "publishedAt": p.get("publishedAt", ""),
-            "url": p.get("url", "#"),
-            "abstract": p.get("abstract", ""),
-            "journal": p.get("journal", "Unknown Journal"),
+            "authors": p.get("authors", ["Unknown Author"]),
+            "publicationDate": p.get("publicationDate", "Unknown Date"),
+            "doi": p.get("doi", "#"),
+            "abstract": p.get("abstract", "No abstract available"),
+            "publisherName": p.get("publisherName", "Unknown Journal"),
         } for p in papers]
 
         return render_template("index.html", papers=paper_data, page=page)
