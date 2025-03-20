@@ -34,9 +34,9 @@ def fetch_papers_job():
         if not papers:
             logger.warning("📭 No papers fetched")
         else:
-            logger.info(f"✅ Successfully fetched {len(papers)} papers")
+            logger.info(f"✅ fetch_papers_job SUCCESSFULL: Fetched {len(papers)} papers")
     except Exception as e:
-        logger.error(f"🔥 Scheduled job failed: {str(e)}")
+        logger.error(f"🔥 fetch_papers_job FAILURE: {str(e)}")
 
 def store_papers_job():
     """Job to store papers in MongoDB"""
@@ -46,13 +46,14 @@ def store_papers_job():
             logger.warning("📭 No papers to store")
             return
         else:
-            logger.info("📦 Starting paper storage job")
+            logger.info("📦 Starting store_papers_job")
             store_papers(papers)
-            logger.info(f"🔄 Stored {len(papers)} papers in MongoDB")
+            logger.info(f"🔄 store_papers_job SUCCESSFULL: Stored {len(papers)} papers in MongoDB")
             papers = []
 
     except Exception as e:
-        logger.error(f"🔥 Scheduled job failed: {str(e)}")
+        logger.error(f"🔥 store_papers_job FAILURE: {str(e)}")
+        return
 
 # Add scheduled jobs
 scheduler.add_job(fetch_papers_job, 'interval', minutes=10, next_run_time=datetime.datetime.now())

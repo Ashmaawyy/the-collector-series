@@ -20,7 +20,7 @@ db = client['the-scientific_collector']
 papers_collection = db['scientific_collection']
 
 # Retry configuration for API calls
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+#@retry(stop=stop_after_attempt(3), wait=wait_fixed(10))
 def fetch_papers(days=60, max_results=100):
     """Fetch papers from Springer API with enhanced error handling"""
     papers = []
@@ -39,8 +39,7 @@ def fetch_papers(days=60, max_results=100):
             url = (
                 f"https://api.springernature.com/openaccess/json?"
                 f"api_key={SPRINGER_API_KEY}&"
-                f"q=datefrom:{start_date} dateto:{end_date}&"
-                f"p={start}&s=10"
+                f"q=onlinedatefrom:{start_date} onlinedateto:{end_date}"
             )
             
             response = requests.get(url, headers={
@@ -64,7 +63,7 @@ def fetch_papers(days=60, max_results=100):
                     "publicationDate": record.get("publicationDate"),
                     "url": next((u["value"] for u in record.get("url", []) if u["format"] == "html"), ""),
                     "abstract": record.get("abstract", ""),
-                    "journal": record.get("journalTitle", "Springer"),
+                    "journal": record.get("journal", "Springer"),
                 }
                 papers.append(paper)
             
@@ -90,14 +89,7 @@ def store_papers(papers):
         logger.info("🧹 Processing papers for storage")
         for paper in papers:
             if not papers_collection.find_one({"title": paper["title"], "publicationDate": paper["publicationDate"]}):
-                formatted_papers.append({
-                    "title": paper["title"],
-                    "authors": paper["authors"],
-                    "publicationDate": paper["publicationDate"],
-                    "url": paper["url"],
-                    "abstract": paper["abstract"],
-                    "journal": paper["journalTitle"],
-                })
+                formatted_papers.append(paper)
             else:
                 duplicates += 1
 
