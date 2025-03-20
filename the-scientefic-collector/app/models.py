@@ -70,11 +70,11 @@ def fetch_papers(days=60, max_results=100):
             
             start += 10
 
-        logger.info(f"✅ Fetched {len(papers)} papers")
+        logger.info(f"✅ API fetched {len(papers)} papers successfully")
         return papers
 
     except Exception as e:
-        logger.error(f"🔥 Critical API error: {str(e)}")
+        logger.error(f"🔥 Critical API Error: {str(e)}")
         return []
 
 def store_papers(papers):
@@ -84,7 +84,7 @@ def store_papers(papers):
             logger.warning("📭 No papers to store")
             return
 
-        logger.info("🧹 Checking for Duplicate papers...")
+        logger.info("🔍 Checking for Duplicate papers before insertion...")
         
         if papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}):
             duplicates = papers_collection.find_one({"title": papers["title"], "publicationDate": papers["publicationDate"]}).count()
@@ -93,9 +93,9 @@ def store_papers(papers):
         
         else:
             papers_collection.insert_many(papers)
-            logger.info(f"📚 Stored {len(papers)} new papers")
+            logger.info(f"📚 Inserted {len(papers)} new papers")
             return
 
     except Exception as e:
-        logger.error(f"🔥 Storage failed: {str(e)}")
+        logger.error(f"🔥 Insertion Failed: {str(e)}")
         return
