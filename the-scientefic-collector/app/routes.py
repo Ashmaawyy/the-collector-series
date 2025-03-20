@@ -25,7 +25,7 @@ def home():
         paper_data = []
         for p in papers:
             doi = p.get("doi", "")
-            if doi not in seen_dois:
+            if doi and doi not in seen_dois:
                 seen_dois.add(doi)
                 paper_data.append({
                     "title": p.get("title", "Untitled"),
