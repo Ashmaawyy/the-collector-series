@@ -59,11 +59,12 @@ def fetch_papers(days=60, max_results=100):
                 paper = {
                     "title": record.get("title", "Untitled"),
                     "doi": record.get("doi", ""),
-                    "authors": [c["creator"] for c in record.get("authors", [])],
+                    "authors": [c["creator"] for c in record.get("creator", [])],
+                    "publisherName": record.get("publisherName", ""),
+                    "publicationType": record.get("publicationType", ""),
                     "publicationDate": record.get("publicationDate"),
-                    "url": next((u["value"] for u in record.get("url", []) if u["format"] == "html"), ""),
+                    "url": next((u["value"] for u in record.get("url", [])), ""),
                     "abstract": record.get("abstract", ""),
-                    "journal": record.get("journal", "Springer"),
                 }
                 papers.append(paper)
             
