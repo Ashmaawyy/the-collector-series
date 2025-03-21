@@ -77,16 +77,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const publicationDate = document.createElement("p");
         publicationDate.innerHTML = `<i class="fas fa-calendar-alt"></i> <strong>Published:</strong> ${paper.publicationDate || "Unknown Date"}`;
 
-        const abstract = document.createElement("p");
-        abstract.innerHTML = `<strong>Abstract:</strong> ${paper.abstract || "No abstract available."}`;
-        abstract.classList.add("abstract-text");
+        const toggleAbstract = document.createElement("div");
+        toggleAbstract.classList.add("abstract-toggle");
+        toggleAbstract.innerHTML = '<i class="fas fa-chevron-down"></i> <span>Abstract</span>';
 
-        const toggleAbstract = document.createElement("span");
-        toggleAbstract.innerHTML = '<i class="fas fa-chevron-down"></i>';
-        toggleAbstract.classList.add("toggle-abstract");
+        const abstract = document.createElement("p");
+        abstract.innerHTML = `${paper.abstract.p || "No abstract available."}`;
+        abstract.classList.add("paper-abstract");
+
         toggleAbstract.addEventListener("click", function () {
-            abstract.classList.toggle("expanded");
-            toggleAbstract.innerHTML = abstract.classList.contains("expanded") ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+            abstract.classList.toggle("active");
+            toggleAbstract.querySelector("i").classList.toggle("fa-chevron-up");
         });
 
         const readMore = document.createElement("a");
@@ -100,8 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
         card.appendChild(authors);
         card.appendChild(journal);
         card.appendChild(publicationDate);
-        card.appendChild(abstract);
         card.appendChild(toggleAbstract);
+        card.appendChild(abstract);
         card.appendChild(readMore);
 
         return card;
