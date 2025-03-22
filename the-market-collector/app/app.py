@@ -1,7 +1,8 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import fetch_stocks, store_stocks
+import os
 import logging
 
 logging.basicConfig(
@@ -17,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 from routes import *
-from models import *
 
 fetched_stocks = []
 
@@ -33,13 +33,13 @@ def store_stocks_job():
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(fetch_stocks_job, "interval", minutes=5, next_run_time=datetime.now())
-scheduler.add_job(store_stocks_job, "interval", minutes=6, next_run_time=datetime.now())
-scheduler.start()
+scheduler.add_job(store_stocks_job, "interval", minutes=6, next_run_time=datetime.now()+timedelta(minutes=1))
 
 if __name__ == "__main__":
-    # Initial data population
-    fetch_stocks_job()
-    store_stocks_job()
-    
     logger.info("🚀 The Market Collector starting on port 5000")
+
+     # Prevent scheduler from starting twice
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":  
+        scheduler.start()
+
     app.run(debug=True, port=5000, host="0.0.0.0")

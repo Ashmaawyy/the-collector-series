@@ -1,42 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Market Collector</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
         <div class="theme-switch">
-            <span class="icon sun">☀️</span>
+            <span class="icon sun"><i class="fas fa-sun"></i></span>
             <label class="switch">
                 <input type="checkbox" id="theme-toggle">
                 <span class="slider round"></span>
             </label>
-            <span class="icon moon">🌙</span>
+            <span class="icon moon"><i class="fas fa-moon"></i></span>
         </div>
         <div class="search-container">
             <input type="text" id="search-input" class="search-box" placeholder="Search stocks...">
         </div>
     </header>
-    
-    <section id="stocks-container">
-        {% if stocks %}
-            {% for stock in stocks %}
-                <div class="stock-card small-stock">
-                    <h2>{{ stock.symbol }}</h2>
-                    <p>Timestamp: {{ stock.timestamp }}</p>
-                    <p>Open: {{ stock.open }}</p>
-                    <p>High: {{ stock.high }}</p>
-                    <p>Low: {{ stock.low }}</p>
-                    <p>Close: {{ stock.close }}</p>
-                    <p>Volume: {{ stock.volume }}</p>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </section>
+
+    <main>
+        <section id="stocks-container" class="stock-grid">
+            <!-- Stock cards will be dynamically inserted here -->
+        </section>
+    </main>
+
+    <div class="toast-container"></div>
     <button id="back-to-top" class="back-to-top">⏫</button>
 </body>
 </html>
