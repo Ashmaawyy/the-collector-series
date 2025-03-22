@@ -58,6 +58,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
+    const formatTimestamp = (timestamp) => {
+        // Example: Convert UNIX timestamp to readable date
+        return new Date(timestamp).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    };
+    
+    const formatCurrency = (value) => {
+        // Example: Format as USD currency
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    };
+    
+    const formatNumber = (value) => {
+        // Used for volume formatting
+        return new Intl.NumberFormat().format(value);
+    };
+
     const createStockCard = (stock) => {
         const card = document.createElement("div");
         card.classList.add("stock-card");
@@ -67,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         header.innerHTML = `<h2>${stock.symbol}</h2><span class="timestamp">${formatTimestamp(stock.timestamp)}</span>`;
 
         const priceGrid = document.createElement("div");
-        priceGrid.classList.add("stock-grid");
+        priceGrid.classList.add("price-grid");
         priceGrid.innerHTML = `
             <div class="price-item"><span class="label">📌 Open</span><span class="value">${formatCurrency(stock.open)}</span></div>
             <div class="price-item"><span class="label">📈 High</span><span class="value">${formatCurrency(stock.high)}</span></div>
@@ -90,9 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const appendStocks = (stocks) => {
         stocks.forEach(stock => {
-            const symbol = getStockSymbol(stock);
-            if (seenSymbols.has(symbol)) return; // Skip duplicate stocks
-            seenSymbols.add(symbol);
             const card = createStockCard(stock);
             stocksContainer.appendChild(card);
             fadeInElement(card);
