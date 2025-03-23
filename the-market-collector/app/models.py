@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import requests
 import os
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,27 @@ def get_latest_stocks(limit=50):
         return []
 
 def fetch_stocks():
-    symbol = "MSFT"
+    symbols = ["MSFT",
+               "AAPL",
+               "GOOGL",
+               "AMZN",
+               "TSLA",
+               "FB",
+               "NVDA",
+               "INTC",
+               "AMD",
+               "PYPL",
+               "IBM",
+               "NFLX",
+               "ADBE",
+               "CSCO",
+               "QCOM",
+               "ORCL",
+               "CRM",
+               "TWTR",
+               "UBER",
+               "LYFT"]
+    symbol = random.choice(symbols)
     all_stocks_data = []
     
     logger.info(f"🌐 Attempting to fetch stock data for {symbol}...")
