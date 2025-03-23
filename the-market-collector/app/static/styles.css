@@ -168,7 +168,7 @@ header {
 }
 
 .search-box {
-    width: 80%;
+    width: 90%;
     padding: 0.8rem 1rem 0.8rem 2.5rem;
     border: 2px solid var(--border-color);
     border-radius: 25px;
@@ -292,7 +292,7 @@ header {
     }
 
     .search-container {
-        width: 80%;
+        width: 90%;
     }
 
     #stocks-container {
