@@ -78,32 +78,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const createStockCard = (stock) => {
         const card = document.createElement("div");
         card.classList.add("stock-card");
-
+    
         const header = document.createElement("div");
         header.classList.add("stock-header");
         header.innerHTML = `<h2>${stock.symbol}</h2><span class="timestamp">${formatTimestamp(stock.timestamp)}</span>`;
-
+    
         const priceGrid = document.createElement("div");
         priceGrid.classList.add("price-grid");
         priceGrid.innerHTML = `
-            <div class="price-item"><span class="label">📌 Open</span><span class="value">${formatCurrency(stock.open)}</span></div>
-            <div class="price-item"><span class="label">📈 High</span><span class="value">${formatCurrency(stock.high)}</span></div>
-            <div class="price-item"><span class="label">📉 Low</span><span class="value">${formatCurrency(stock.low)}</span></div>
-            <div class="price-item"><span class="label">📌 Close</span><span class="value">${formatCurrency(stock.close)}</span></div>
+            <div class="price-item">
+                <i class="fas fa-door-open text-primary"></i>
+                <span class="label">Open</span>
+                <span class="value">${formatCurrency(stock.open)}</span>
+            </div>
+            <div class="price-item">
+                <i class="fas fa-chart-line text-success"></i>
+                <span class="label">High</span>
+                <span class="value">${formatCurrency(stock.high)}</span>
+            </div>
+            <div class="price-item">
+                <i class="fas fa-chart-line text-danger flipped"></i>
+                <span class="label">Low</span>
+                <span class="value">${formatCurrency(stock.low)}</span>
+            </div>
+            <div class="price-item">
+                <i class="fas fa-door-closed text-primary"></i>
+                <span class="label">Close</span>
+                <span class="value">${formatCurrency(stock.close)}</span>
+            </div>
         `;
-
+    
         const volume = document.createElement("div");
         volume.classList.add("volume");
-        volume.innerHTML = `📊 Volume: ${formatNumber(stock.volume)}`;
-
+        volume.innerHTML = `
+            <i class="fas fa-chart-bar text-secondary"></i>
+            Volume: ${formatNumber(stock.volume)}
+        `;
+    
         card.appendChild(header);
         card.appendChild(priceGrid);
         card.appendChild(volume);
-
+    
         return card;
     };
 
-    const getStockSymbol = (stock) => stock.symbol || "Unknown Symbol";
+    //const getStockSymbol = (stock) => stock.symbol || "Unknown Symbol";
 
     const appendStocks = (stocks) => {
         stocks.forEach(stock => {

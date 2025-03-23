@@ -168,7 +168,7 @@ header {
 }
 
 .search-box {
-    width: 100%;
+    width: 80%;
     padding: 0.8rem 1rem 0.8rem 2.5rem;
     border: 2px solid var(--border-color);
     border-radius: 25px;
@@ -292,7 +292,7 @@ header {
     }
 
     .search-container {
-        width: 100%;
+        width: 80%;
     }
 
     #stocks-container {
@@ -376,3 +376,24 @@ header {
 .theme-transition * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
 }
+
+/* Icon styling */
+.price-item i {
+    margin-right: 0.5rem;
+    width: 20px;
+    text-align: center;
+}
+
+.flipped {
+    transform: scaleY(-1);
+}
+
+.volume i {
+    margin-right: 0.5rem;
+}
+
+/* Color overrides */
+.text-primary { color: var(--primary); }
+.text-success { color: #00b894; }
+.text-danger { color: #ff7675; }
+.text-secondary { color: var(--icon-color); }
