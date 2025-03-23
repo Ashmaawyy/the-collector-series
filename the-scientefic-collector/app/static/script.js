@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const readMore = document.createElement("a");
         readMore.href = paper.url || "#";
-        readMore.innerHTML = '<i class="fas fa-external-link-alt"></i> Read More';
+        readMore.innerHTML = '<i class="fas fa-external-link-alt"></i> Read Full Article';
         readMore.target = "_blank";
         readMore.classList.add("read-more-btn");
 
