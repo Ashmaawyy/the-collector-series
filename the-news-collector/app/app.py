@@ -40,6 +40,7 @@ def store_articles_job():
         logger.info("🔄 Article Cache Reset")
     except Exception as e:
         logger.error(f"🔥 store_articles_job Failed: {str(e)}")
+        return
 
 # Scheduler
 scheduler = BackgroundScheduler()

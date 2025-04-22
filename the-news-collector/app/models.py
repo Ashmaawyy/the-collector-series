@@ -64,9 +64,9 @@ def store_articles(articles):
                 duplicates += 1
 
         if duplicates > 0:
-            logger.warning(f"⚠️   Found {duplicates} duplicate articles")
-            logger.info("⏭️ Skipping the store process...")
-            return
+            logger.warning(f"⚠️ Found {duplicates} duplicate articles")
+            logger.info("⏭️  Skipping the store process...")
+            raise Exception("🔁 Duplicate articles found")
 
         if formatted_articles:
             news_collection.insert_many(formatted_articles)
