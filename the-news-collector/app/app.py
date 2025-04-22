@@ -26,7 +26,7 @@ def fetch_articles_job():
     logger.info("🕸️  Starting fetch_articles_job...")
     try:
         fetched_articles = fetch_articles()
-        logger.info(f"✅ fetch_articles_job completed with {len(fetched_articles)} fresh articles")
+        logger.info(f"✅ fetch_articles_job Completed Successfully")
     except Exception as e:
         logger.error(f"🔥 fetch_articles_job Failed: {str(e)}")
 
@@ -35,7 +35,7 @@ def store_articles_job():
     logger.info("💾 Starting store_articles_job...")
     try:
         store_articles(fetched_articles)
-        logger.info(f"📦 store_articles_job executed successfully storing {len(fetched_articles)} fresh articles")
+        logger.info(f"✅ store_articles_job Completed Successfully")
         fetched_articles = []
         logger.info("🔄 Article Cache Reset")
     except Exception as e:
