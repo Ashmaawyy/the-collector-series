@@ -81,7 +81,7 @@ def store_papers(papers):
     try:
         if not papers:
             logger.warning("❌ No papers found to store")
-            raise ValueError("❌ No papers found to store")
+            raise Exception("❌ No papers found to store")
 
         logger.info("🔍 Checking for Duplicate papers before insertion...")
         new_papers = []
@@ -101,6 +101,8 @@ def store_papers(papers):
             papers_collection.insert_many(new_papers)
             logger.info(f"📚 Inserted {len(new_papers)} new papers successfully")
             return
+        else:
+            raise Exception("❌ No unique papers found to insert")
 
     except Exception as e:
         logger.error(f"🔥 Insertion Failed due to: {str(e)}")
