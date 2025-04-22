@@ -70,7 +70,7 @@ def store_articles(articles):
             news_collection.insert_many(formatted_articles)
             logger.info(f"📚 Stored {len(formatted_articles)} new articles")
         else:
-            logger.warning("📭 No new articles to store")
+            logger.warning("📦 No new articles to store")
             Exception("❌ No unique articles to store")
             
     except Exception as e:
