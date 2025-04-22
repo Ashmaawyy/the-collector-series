@@ -33,7 +33,7 @@ def fetch_papers_job():
         else:
             logger.info(f"✅ SUCCESSFULL: fetch_papers_job Completed Successfully")
     except Exception as e:
-        logger.error(f"🔥 FAILURE: fetch_papers_job failed due to: {str(e)}")
+        logger.error(f"❌ FAILURE: fetch_papers_job failed due to: {str(e)}")
 
 def store_papers_job():
     """Job to store papers in MongoDB"""
@@ -46,7 +46,7 @@ def store_papers_job():
         logger.info("🔄 Papers Cache Reset")
 
     except Exception as e:
-        logger.error(f"🔥 FAILURE: store_papers_job failed due to: {str(e)}")
+        logger.error(f"❌ FAILURE: store_papers_job failed due to: {str(e)}")
         return
 
 # Initialize scheduler

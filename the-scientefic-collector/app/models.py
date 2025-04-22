@@ -80,23 +80,28 @@ def store_papers(papers):
     """Store papers in MongoDB with duplicate checking"""
     try:
         if not papers:
-            logger.warning("❌ No found papers to store")
-            return
+            logger.warning("❌ No papers found to store")
+            raise ValueError("❌ No papers found to store")
 
         logger.info("🔍 Checking for Duplicate papers before insertion...")
         new_papers = []
+        duplicates = 0
 
         for paper in papers:
-            if papers_collection.find_one({"title": paper["title"], "publicationDate": paper["publicationDate"]}):
-                logger.warning(f"⚠️ Found duplicate papers: {paper['title']} - skipping duplicate paper...")
-            else:
+            if not papers_collection.find_one({"title": paper["title"], "publicationDate": paper["publicationDate"]}):
                 new_papers.append(paper)
+            else:
+                duplicates += 1
+
+        if duplicates > 0:
+            logger.warning(f"⚠️  Found {duplicates} duplicate papers")
+            logger.info(f"⏭️  Skipping {duplicates} papers...")
         
         if new_papers:
             papers_collection.insert_many(new_papers)
-            logger.info(f"📚 Inserted {len(new_papers)} new papers")
+            logger.info(f"📚 Inserted {len(new_papers)} new papers successfully")
             return
 
     except Exception as e:
         logger.error(f"🔥 Insertion Failed due to: {str(e)}")
-        return
+        raise e
