@@ -80,7 +80,7 @@ def store_papers(papers):
     """Store papers in MongoDB with duplicate checking"""
     try:
         if not papers:
-            logger.warning("📭 No papers to store")
+            logger.warning("❌ No found papers to store")
             return
 
         logger.info("🔍 Checking for Duplicate papers before insertion...")
@@ -98,5 +98,5 @@ def store_papers(papers):
             return
 
     except Exception as e:
-        logger.error(f"🔥 Insertion Failed: {str(e)}")
+        logger.error(f"🔥 Insertion Failed due to: {str(e)}")
         return

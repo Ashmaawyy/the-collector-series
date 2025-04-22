@@ -26,20 +26,20 @@ def fetch_articles_job():
     logger.info("🕸️  Starting fetch_articles_job...")
     try:
         fetched_articles = fetch_articles()
-        logger.info(f"✅ fetch_articles_job Completed Successfully")
+        logger.info(f"✅ SUCCESSFULL: fetch_articles_job Completed Successfully")
     except Exception as e:
-        logger.error(f"🔥 fetch_articles_job Failed: {str(e)}")
+        logger.error(f"🔥 FAILURE: fetch_articles_job Failed: {str(e)}")
 
 def store_articles_job():
     global fetched_articles
     logger.info("💾 Starting store_articles_job...")
     try:
         store_articles(fetched_articles)
-        logger.info(f"✅ store_articles_job Completed Successfully")
+        logger.info(f"✅ SUCCESSFULL: store_articles_job Completed Successfully")
         fetched_articles = []
         logger.info("🔄 Article Cache Reset")
     except Exception as e:
-        logger.error(f"❌ store_articles_job Failed due to: {str(e)}")
+        logger.error(f"❌ FAILURE: store_articles_job Failed due to: {str(e)}")
         return
 
 # Scheduler
