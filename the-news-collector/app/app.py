@@ -23,7 +23,7 @@ fetched_articles = []
 
 def fetch_articles_job():
     global fetched_articles
-    logger.info("🕸️ Starting fetch_articles_job...")
+    logger.info("🕸️  Starting fetch_articles_job...")
     try:
         fetched_articles = fetch_articles()
         logger.info(f"✅ fetch_articles_job completed with {len(fetched_articles)} fresh articles")
