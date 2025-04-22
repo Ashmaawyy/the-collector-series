@@ -32,7 +32,7 @@ def fetch_articles_job():
 
 def store_articles_job():
     global fetched_articles
-    logger.info("💾 Starting store_articles_job")
+    logger.info("💾 Starting store_articles_job...")
     try:
         store_articles(fetched_articles)
         logger.info(f"📦 store_articles_job executed successfully storing {len(fetched_articles)} fresh articles")
