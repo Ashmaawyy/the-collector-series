@@ -39,7 +39,7 @@ def store_articles_job():
         fetched_articles = []
         logger.info("🔄 Article Cache Reset")
     except Exception as e:
-        logger.error(f"🔥 store_articles_job Failed: {str(e)}")
+        logger.error(f"❌ store_articles_job Failed due to: {str(e)}")
         return
 
 # Scheduler
