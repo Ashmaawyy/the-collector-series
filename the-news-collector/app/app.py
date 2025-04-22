@@ -23,22 +23,23 @@ fetched_articles = []
 
 def fetch_articles_job():
     global fetched_articles
-    logger.info("🕸️ Starting news collection job")
+    logger.info("🕸️ Starting fetch_articles_job...")
     try:
         fetched_articles = fetch_articles()
-        logger.info(f"✅ Collected {len(fetched_articles)} fresh articles")
+        logger.info(f"✅ fetch_articles_job completed with {len(fetched_articles)} fresh articles")
     except Exception as e:
-        logger.error(f"🔥 Failed to collect articles: {str(e)}")
+        logger.error(f"🔥 fetch_articles_job Failed: {str(e)}")
 
 def store_articles_job():
     global fetched_articles
-    logger.info("💾 Starting article storage job")
+    logger.info("💾 Starting store_articles_job")
     try:
         store_articles(fetched_articles)
+        logger.info(f"📦 store_articles_job executed successfully storing {len(fetched_articles)} fresh articles")
         fetched_articles = []
-        logger.info("🔄 Reset article cache")
+        logger.info("🔄 Article Cache Reset")
     except Exception as e:
-        logger.error(f"🔥 Failed to store articles: {str(e)}")
+        logger.error(f"🔥 store_articles_job Failed: {str(e)}")
 
 # Scheduler
 scheduler = BackgroundScheduler()
