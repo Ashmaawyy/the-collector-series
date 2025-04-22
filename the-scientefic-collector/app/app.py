@@ -26,7 +26,7 @@ def fetch_papers_job():
     """Job to fetch papers from Springer API"""
     global papers
     try:
-        logger.info("🕸️ Starting paper fetch job")
+        logger.info("🕸️  Starting paper fetch job")
         papers = fetch_papers()
         if not papers:
             logger.warning("📭 No papers fetched")
