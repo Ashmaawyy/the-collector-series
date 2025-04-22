@@ -64,7 +64,7 @@ def store_articles(articles):
                 duplicates += 1
 
         if duplicates > 0:
-            logger.warning(f"⚠️ Found {duplicates} duplicate articles")
+            logger.warning(f"⚠️  Found {duplicates} duplicate articles")
             logger.info("⏭️  Skipping the store process...")
             raise Exception("🔁 Duplicate articles found")
 
@@ -75,7 +75,8 @@ def store_articles(articles):
             raise Exception("❌ No articles found to store")
             
     except Exception as e:
-        logger.error(f"🔥 Storage failed: {str(e)}")
+        logger.error(f"🔥 Storage failed due to: {str(e)}")
+        raise e
 
 def get_latest_headlines(limit=50):
     """
