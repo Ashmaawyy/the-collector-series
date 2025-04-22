@@ -71,7 +71,7 @@ def store_articles(articles):
             logger.info(f"📚 Stored {len(formatted_articles)} new articles")
         else:
             logger.warning("📦 No new articles to store")
-            Exception("❌ No unique articles to store")
+            raise Exception("❌ No unique articles to store")
             
     except Exception as e:
         logger.error(f"🔥 Storage failed: {str(e)}")
