@@ -64,14 +64,15 @@ def store_articles(articles):
                 duplicates += 1
 
         if duplicates > 0:
-            logger.warning(f"⚠️ Found {duplicates} duplicate articles")
+            logger.warning(f"⚠️   Found {duplicates} duplicate articles")
+            logger.info("⏭️ Skipping the store process...")
+            return
 
         if formatted_articles:
             news_collection.insert_many(formatted_articles)
             logger.info(f"📚 Stored {len(formatted_articles)} new articles")
         else:
-            logger.warning("📦 No new articles to store")
-            raise Exception("❌ No unique articles to store")
+            raise Exception("❌ No articles found to store")
             
     except Exception as e:
         logger.error(f"🔥 Storage failed: {str(e)}")
