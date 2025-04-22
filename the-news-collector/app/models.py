@@ -65,17 +65,16 @@ def store_articles(articles):
 
         if duplicates > 0:
             logger.warning(f"⚠️  Found {duplicates} duplicate articles")
-            logger.info("⏭️  Skipping the store process...")
-            raise Exception("🔁 Duplicate articles found")
+            logger.info(f"⏭️  Skipping {duplicates} articles...")
 
         if formatted_articles:
             news_collection.insert_many(formatted_articles)
             logger.info(f"📚 Stored {len(formatted_articles)} new articles")
         else:
-            raise Exception("❌ No articles found to store")
+            raise Exception("⚠️  No unique articles found to store")
             
     except Exception as e:
-        logger.error(f"🔥 Storage failed due to: {str(e)}")
+        logger.error(f"❌ Storage process skipped due to: {str(e)}")
         raise e
 
 def get_latest_headlines(limit=50):
